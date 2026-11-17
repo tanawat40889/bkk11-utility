@@ -128,6 +128,14 @@ function CheckIn() {
     pick(data as number);
   }
 
+  async function rename(v: string) {
+    const n = v.trim();
+    if (!n || n === ev?.name) return;
+    const { error } = await sbBrowser().rpc("checkin_event_rename", { p_event: id, p_name: n });
+    if (error) return setErr("แก้ชื่อไม่สำเร็จ ลองอีกครั้ง");
+    load();
+  }
+
   async function changeLevel(l: string) {
     const { error } = await sbBrowser().rpc("checkin_event_set_level", { p_event: id, p_level: l });
     if (error) return setErr("เปลี่ยนระดับไม่สำเร็จ ลองอีกครั้ง");
@@ -165,6 +173,10 @@ function CheckIn() {
       <main className="page" style={{ paddingTop: 16 }}>
         {admin && showSet && (
           <section className="panel" aria-label="ตั้งค่ากิจกรรม">
+            <div className="field">
+              <label htmlFor="en">ชื่อกิจกรรม</label>
+              <input id="en" key={ev.name} className="input" defaultValue={ev.name} maxLength={200} onBlur={(e) => rename(e.target.value)} />
+            </div>
             <div className="field">
               <span className="lbl" id="lv">ระดับการประชุม</span>
               <div className="chips" role="group" aria-labelledby="lv">

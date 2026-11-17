@@ -198,3 +198,17 @@ grant execute on function
   public.checkin_events_list(), public.checkin_event_create(text, date[], text), public.checkin_event_get(uuid),
   public.checkin_event_set_level(uuid, text), public.checkin_search(uuid, text)
 to authenticated;
+
+create function public.checkin_event_rename(p_event uuid, p_name text)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare c record; ok boolean;
+begin
+  select * into c from checkin_ctx();
+  if not checkin_is_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
+  if p_name is null or btrim(p_name) = '' then raise exception 'bad name' using errcode = '22023'; end if;
+  update checkin_events e set name = btrim(p_name) where e.id = p_event and e.rwp = c.rwp returning true into ok;
+  if ok is null then raise exception 'forbidden' using errcode = '42501'; end if;
+end $$;
+revoke all on function public.checkin_event_rename(uuid, text) from public, anon;
+grant execute on function public.checkin_event_rename(uuid, text) to authenticated;
