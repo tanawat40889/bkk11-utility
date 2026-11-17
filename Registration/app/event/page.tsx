@@ -37,10 +37,7 @@ function CheckIn() {
   const input = useRef<HTMLInputElement>(null);
   const key = `bkk11-round-${id}`;
 
-  // remember which round this device was on
-  useEffect(() => {
-    try { const v = Number(localStorage.getItem(key)); if (v >= 1) setRound(v); } catch {}
-  }, [key]);
+  const inited = useRef(false);
   const pick = (n: number) => {
     setRound(n);
     setQ("");
@@ -57,10 +54,30 @@ function CheckIn() {
     const row = (e?.[0] as Ev | undefined) ?? null;
     setEv(row);
     if (!row) return;
-    const cur = Math.min(round, row.rounds);
+    let cur = Math.min(round, row.rounds);
+    if (!inited.current) {
+      // first open: pick the ครั้ง whose date is today (the one remembered on this device wins if several share today);
+      // otherwise the remembered one, otherwise the nearest date
+      inited.current = true;
+      let remembered = 0;
+      try { remembered = Number(localStorage.getItem(key)) || 0; } catch {}
+      const today = todayLocal();
+      const todays = row.round_dates.flatMap((d, i) => (d === today ? [i + 1] : []));
+      const nearest = () => {
+        const t = new Date(`${today}T00:00:00`).getTime();
+        let best = 1, gap = Infinity;
+        row.round_dates.forEach((d, i) => {
+          const g = Math.abs(new Date(`${d}T00:00:00`).getTime() - t);
+          if (g < gap) { gap = g; best = i + 1; }
+        });
+        return best;
+      };
+      cur = todays.includes(remembered) ? remembered : todays[0] ?? (remembered >= 1 && remembered <= row.rounds ? remembered : nearest());
+      setRound(cur);
+    }
     const { data: c } = await db.rpc("checkin_list", { p_event: id, p_round: cur });
     setDone((c as C[]) ?? []);
-  }, [id, round]);
+  }, [id, round, key]);
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
