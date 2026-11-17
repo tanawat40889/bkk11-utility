@@ -14,9 +14,8 @@ export default function Top() {
   return (
     <header className="top">
       <div className="top-in">
-        <Link className="brand" href="/events" aria-label="BKK11 เช็คชื่อ">
+        <Link className="brand" href="/events" aria-label="BKK11">
           <img src={asset("/logo.png")} alt="BKK11 รวมภาคกรุงเทพ" />
-          <span>เช็คชื่อ</span>
         </Link>
         <span className="grow" />
         <button className="btn ghost sm icon" aria-label="ออกจากระบบ" title="ออกจากระบบ" onClick={logout}><Out /></button>

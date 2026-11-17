@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { sbBrowser } from "@/lib/supabase-browser";
 import Top from "@/components/Top";
 import { fmtLong, fmtShort, todayLocal } from "@/lib/dates";
-import { Back, Check, Plus, Search, Undo } from "@/components/icons";
+import { Back, Check, Gear, Search, Undo } from "@/components/icons";
 
 type M = { mt_co: number; name: string; khet: string };
 type C = M & { checked_in_at: string };
@@ -33,6 +33,7 @@ function CheckIn() {
   const [err, setErr] = useState("");
   const [adding, setAdding] = useState<string | null>(null);
   const [admin, setAdmin] = useState(false);
+  const [showSet, setShowSet] = useState(false);
   const [prev, setPrev] = useState<C[]>([]);
   const [toast, setToast] = useState<{ code: number; name: string; round: number } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -120,10 +121,10 @@ function CheckIn() {
   }
 
   async function addRound() {
-    if (!adding) return;
-    const { data, error } = await sbBrowser().rpc("checkin_round_add", { p_event: id, p_date: adding });
+    const { data, error } = await sbBrowser().rpc("checkin_round_add", { p_event: id, p_date: adding ?? todayLocal() });
     if (error) return setErr("เพิ่มครั้งไม่ได้ (สูงสุด 20 ครั้ง)");
     setAdding(null);
+    setShowSet(false);
     pick(data as number);
   }
 
@@ -138,50 +139,52 @@ function CheckIn() {
   const pending = prev.filter((p) => !doneSet.has(p.mt_co));
   if (ev === undefined) return <><Top /><main className="page"><p className="sub">กำลังโหลด…</p></main></>;
   if (ev === null)
-    return <><Top /><main className="page"><Link className="back" href="/events"><Back /> กิจกรรม</Link><p className="empty">ไม่พบกิจกรรม หรือไม่มีสิทธิ์เข้าถึง</p></main></>;
+    return <><Top /><main className="page"><Link className="btn ghost sm icon" href="/events" aria-label="กลับ"><Back /></Link><p className="empty">ไม่พบกิจกรรม หรือไม่มีสิทธิ์เข้าถึง</p></main></>;
 
   const curDate = ev.round_dates[cur - 1] ?? ev.event_date;
   const multi = ev.rounds > 1;
 
   return (
     <>
-      <Top />
-      <main className="page" style={{ paddingTop: 8 }}>
-        <Link className="back" href="/events"><Back /> กิจกรรม</Link>
-        <div>
-          <h1>{ev.name}</h1>
-          <p className="sub">{multi ? `${ev.rounds} ครั้ง · ${fmtShort(ev.round_dates[0])}${ev.round_dates.some((d) => d !== ev.round_dates[0]) ? ` – ${fmtShort([...ev.round_dates].sort().at(-1)!)}` : ""}` : fmtLong(curDate)}</p>
-        </div>
-
-        <div className="chips" role="group" aria-label="ครั้งที่เช็คชื่อ">
-          {multi && Array.from({ length: ev.rounds }, (_, i) => i + 1).map((n) => (
-            <button key={n} className="chip" aria-pressed={n === cur} onClick={() => pick(n)}>
-              <b>ครั้งที่ {n}</b><small>{fmtShort(ev.round_dates[n - 1])} · {ev.counts[n - 1] ?? 0} คน</small>
-            </button>
-          ))}
-          {admin && ev.rounds < 20 && (
-            <button className="chip add" onClick={() => setAdding(adding ? null : todayLocal())}><Plus /> {multi ? "เพิ่มครั้ง" : "เพิ่มครั้งเช็คชื่อ"}</button>
+      <header className="top">
+        <div className="top-in">
+          <Link className="btn ghost sm icon" href="/events" aria-label="กลับ" title="กลับ"><Back /></Link>
+          <h1 className="top-title">{ev.name}</h1>
+          {admin && (
+            <button className="btn ghost sm icon" aria-label="ตั้งค่า" title="ตั้งค่า" aria-expanded={showSet} onClick={() => setShowSet((v) => !v)}><Gear /></button>
           )}
         </div>
-
-        {admin && adding && (
-          <div className="addbox">
+      </header>
+      <main className="page" style={{ paddingTop: 16 }}>
+        {admin && showSet && (
+          <section className="panel" aria-label="ตั้งค่ากิจกรรม">
             <div className="field">
-              <label htmlFor="nd">วันที่ของครั้งที่ {ev.rounds + 1}</label>
-              <input id="nd" className="input" type="date" value={adding} onChange={(e) => setAdding(e.target.value)} />
+              <label htmlFor="cd">{multi ? `วันที่ครั้งที่ ${cur}` : "วันที่"}</label>
+              <input id="cd" className="input" type="date" value={curDate} onChange={(e) => changeDate(e.target.value)} />
             </div>
-            <button className="btn" onClick={addRound} disabled={!adding}>เพิ่ม</button>
-          </div>
+            {ev.rounds < 20 && (
+              <div className="addbox">
+                <div className="field">
+                  <label htmlFor="nd">เพิ่มครั้งที่ {ev.rounds + 1} วันที่</label>
+                  <input id="nd" className="input" type="date" value={adding ?? todayLocal()} onChange={(e) => setAdding(e.target.value)} />
+                </div>
+                <button className="btn" onClick={addRound}>เพิ่ม</button>
+              </div>
+            )}
+          </section>
         )}
 
-        {admin ? (
-          <div className="field">
-            <label htmlFor="cd">{multi ? `วันที่ครั้งที่ ${cur}` : "วันที่"}</label>
-            <input id="cd" className="input" type="date" value={curDate} onChange={(e) => changeDate(e.target.value)} />
+        {multi ? (
+          <div className="chips" role="group" aria-label="ครั้งที่">
+            {Array.from({ length: ev.rounds }, (_, i) => i + 1).map((n) => (
+              <button key={n} className="chip" aria-pressed={n === cur} onClick={() => pick(n)}>
+                <b>ครั้งที่ {n}</b><small>{fmtShort(ev.round_dates[n - 1])} · {ev.counts[n - 1] ?? 0} คน</small>
+              </button>
+            ))}
           </div>
-        ) : multi ? (
-          <p className="sub" style={{ margin: 0 }}>ครั้งที่ {cur} · {fmtLong(curDate)}</p>
-        ) : null}
+        ) : (
+          <p className="sub" style={{ margin: 0 }}>{fmtLong(curDate)}</p>
+        )}
 
         <div className="stat" aria-live="polite">
           <span className="n">{done.length}</span>
