@@ -9,7 +9,7 @@ import { Back, Check, Gear, Search, Undo } from "@/components/icons";
 
 type M = { mt_co: number; name: string; khet: string };
 type C = M & { checked_in_at: string };
-type Ev = { name: string; event_date: string; rounds: number; round_dates: string[]; counts: number[] };
+type Ev = { name: string; event_date: string; rounds: number; round_dates: string[]; counts: number[]; level: string; scope: string };
 
 export default function Page() {
   return (
@@ -93,12 +93,12 @@ function CheckIn() {
     const t = q.trim();
     if (!t) { setRes([]); setResFor(""); return; }
     const h = setTimeout(async () => {
-      const { data } = await sbBrowser().rpc("checkin_search", { p_q: t });
+      const { data } = await sbBrowser().rpc("checkin_search", { p_event: id, p_q: t });
       setRes((data as M[]) ?? []);
       setResFor(t);
     }, 200);
     return () => clearTimeout(h);
-  }, [q]);
+  }, [q, id]);
 
   const cur = ev ? Math.min(round, ev.rounds) : 1;
 
@@ -126,6 +126,13 @@ function CheckIn() {
     setAdding(null);
     setShowSet(false);
     pick(data as number);
+  }
+
+  async function changeLevel(l: string) {
+    const { error } = await sbBrowser().rpc("checkin_event_set_level", { p_event: id, p_level: l });
+    if (error) return setErr("เปลี่ยนระดับไม่สำเร็จ ลองอีกครั้ง");
+    setQ("");
+    load();
   }
 
   async function changeDate(v: string) {
@@ -159,6 +166,14 @@ function CheckIn() {
         {admin && showSet && (
           <section className="panel" aria-label="ตั้งค่ากิจกรรม">
             <div className="field">
+              <span className="lbl" id="lv">ระดับการประชุม</span>
+              <div className="chips" role="group" aria-labelledby="lv">
+                {["รวมภาค", "ภาค", "เขต"].map((l) => (
+                  <button key={l} className="chip" aria-pressed={ev.level === l} onClick={() => changeLevel(l)}><b>{l}</b></button>
+                ))}
+              </div>
+            </div>
+            <div className="field">
               <label htmlFor="cd">{multi ? `วันที่ครั้งที่ ${cur}` : "วันที่"}</label>
               <input id="cd" className="input" type="date" value={curDate} onChange={(e) => changeDate(e.target.value)} />
             </div>
@@ -185,6 +200,7 @@ function CheckIn() {
         ) : (
           <p className="sub" style={{ margin: 0 }}>{fmtLong(curDate)}</p>
         )}
+        <p className="sub" style={{ margin: 0 }}>ประชุมระดับ{ev.level} · ค้นหาได้ใน{ev.scope}</p>
 
         <div className="stat" aria-live="polite">
           <span className="n">{done.length}</span>
@@ -212,7 +228,7 @@ function CheckIn() {
 
         {q.trim() && resFor === q.trim() && (
           res.length === 0 ? (
-            <p className="empty">ไม่พบสมาชิกในภาคของคุณ</p>
+            <p className="empty">ไม่พบสมาชิกใน{ev.scope}</p>
           ) : (
             <ul className="res">
               {res.map((m) => {

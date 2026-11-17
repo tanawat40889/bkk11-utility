@@ -7,7 +7,8 @@ import { dayNum, fmtMonth, fmtShort, todayLocal } from "@/lib/dates";
 import Top from "@/components/Top";
 import { Chev, Plus } from "@/components/icons";
 
-type Ev = { id: string; name: string; event_date: string; last_date: string; rounds: number; n: number };
+const LEVELS = ["รวมภาค", "ภาค", "เขต"];
+type Ev = { id: string; name: string; event_date: string; last_date: string; rounds: number; n: number; level: string };
 
 export default function Events() {
   const r = useRouter();
@@ -18,6 +19,7 @@ export default function Events() {
   const [dates, setDates] = useState<string[]>(() => [todayLocal()]);
   const [err, setErr] = useState("");
   const [open, setOpen] = useState(false);
+  const [level, setLevel] = useState("ภาค");
   const [admin, setAdmin] = useState(false);
 
   const load = useCallback(async () => {
@@ -42,7 +44,7 @@ export default function Events() {
   async function create(e: React.FormEvent) {
     e.preventDefault();
     setErr("");
-    const { error } = await sbBrowser().rpc("checkin_event_create", { p_name: name, p_dates: dates });
+    const { error } = await sbBrowser().rpc("checkin_event_create", { p_name: name, p_dates: dates, p_level: level });
     if (error) return setErr("สร้างกิจกรรมไม่สำเร็จ ลองอีกครั้ง");
     setName("");
     setDates([todayLocal()]);
@@ -66,6 +68,15 @@ export default function Events() {
             <div className="field">
               <label htmlFor="n">ชื่อกิจกรรม</label>
               <input id="n" className="input" required value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="field">
+              <span className="lbl" id="lv">ระดับการประชุม</span>
+              <div className="chips" role="group" aria-labelledby="lv">
+                {LEVELS.map((l) => (
+                  <button type="button" key={l} className="chip" aria-pressed={level === l} onClick={() => setLevel(l)}><b>{l}</b></button>
+                ))}
+              </div>
+              <span className="hint">ค้นรายชื่อได้เฉพาะ{level}ที่ตัวเองสังกัด</span>
             </div>
             <div className="field">
               <label htmlFor="rd">จำนวนครั้งที่เช็คชื่อ</label>
@@ -98,8 +109,8 @@ export default function Events() {
                     <strong>{e.name}</strong>
                     <span className="num">
                       {e.rounds > 1
-                        ? `${e.rounds} ครั้ง · ${fmtShort(e.event_date)}${e.last_date !== e.event_date ? ` – ${fmtShort(e.last_date)}` : ""}`
-                        : "1 ครั้ง"}
+                        ? `ระดับ${e.level} · ${e.rounds} ครั้ง · ${fmtShort(e.event_date)}${e.last_date !== e.event_date ? ` – ${fmtShort(e.last_date)}` : ""}`
+                        : `ระดับ${e.level} · 1 ครั้ง`}
                     </span>
                     <span className="num">เช็คชื่อแล้ว {e.n} {e.rounds > 1 ? "ครั้ง" : "คน"}</span>
                   </div>
