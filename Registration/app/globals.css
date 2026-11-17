@@ -187,14 +187,13 @@ h2 { font-size: 1.1rem; font-weight: 600; }
 .addbox { display: flex; gap: 10px; align-items: flex-end; }
 .addbox .field { flex: 1; min-width: 0; }
 
-/* iOS Safari renders date inputs as small centred pills ignoring our box: normalise them */
+/* iOS Safari renders date inputs as small pills and pins the value to the top: fix the box, then centre the value */
 input[type="date"].input {
   -webkit-appearance: none; appearance: none;
-  display: block; min-width: 0; max-width: 100%;
-  text-align: left; line-height: 1.2;
-  padding-top: 0; padding-bottom: 0;
+  display: flex; align-items: center;
+  height: 52px; min-height: 52px; min-width: 0; max-width: 100%;
+  padding: 0 14px; line-height: normal; text-align: left;
 }
-input[type="date"].input::-webkit-date-and-time-value { text-align: left; min-height: 1.3em; margin: 0; }
-input[type="date"].input::-webkit-datetime-edit { padding: 0; }
-input[type="date"].input::-webkit-calendar-picker-indicator { opacity: 0.7; }
-input[type="date"].input:invalid, input[type="date"].input[value=""] { color: var(--muted); }
+input[type="date"].input::-webkit-date-and-time-value { text-align: left; margin: 0; min-height: 0; }
+input[type="date"].input::-webkit-datetime-edit { padding: 0; margin: 0; line-height: normal; }
+input[type="date"].input::-webkit-calendar-picker-indicator { opacity: 0.7; margin: 0; }
