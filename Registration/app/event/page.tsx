@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { sbBrowser } from "@/lib/supabase-browser";
 import Top from "@/components/Top";
 import { fmtLong, fmtShort, todayLocal } from "@/lib/dates";
-import { Back, Check, Gear, Search, Undo } from "@/components/icons";
+import Scan from "@/components/Scan";
+import { Back, Caret, Check, Gear, Scan as ScanIc, Search, Undo } from "@/components/icons";
 
 type M = { mt_co: number; name: string; khet: string };
 type C = M & { checked_in_at: string };
@@ -34,6 +35,7 @@ function CheckIn() {
   const [adding, setAdding] = useState<string | null>(null);
   const [admin, setAdmin] = useState(false);
   const [showSet, setShowSet] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const [prev, setPrev] = useState<C[]>([]);
   const [toast, setToast] = useState<{ code: number; name: string; round: number } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -201,22 +203,20 @@ function CheckIn() {
           </section>
         )}
 
-        {multi ? (
-          <div className="chips" role="group" aria-label="ครั้งที่">
-            {Array.from({ length: ev.rounds }, (_, i) => i + 1).map((n) => (
-              <button key={n} className="chip" aria-pressed={n === cur} onClick={() => pick(n)}>
-                <b>ครั้งที่ {n}</b><small>{fmtShort(ev.round_dates[n - 1])} · {ev.counts[n - 1] ?? 0} คน</small>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <p className="sub" style={{ margin: 0 }}>{fmtLong(curDate)}</p>
-        )}
-        <p className="sub" style={{ margin: 0 }}>ประชุมระดับ{ev.level} · ค้นหาได้ใน{ev.scope}</p>
-
-        <div className="stat" aria-live="polite">
-          <span className="n">{done.length}</span>
-          <span className="sub" style={{ margin: 0 }}>{multi ? `คนเช็คชื่อแล้ว ในครั้งที่ ${cur}` : "คนเช็คชื่อแล้ว"}</span>
+        <div className="rbar">
+          {multi ? (
+            <div className="sel">
+              <select aria-label="ครั้งที่" value={cur} onChange={(e) => pick(Number(e.target.value))}>
+                {Array.from({ length: ev.rounds }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>ครั้งที่ {n} · {fmtShort(ev.round_dates[n - 1])}</option>
+                ))}
+              </select>
+              <Caret />
+            </div>
+          ) : (
+            <span className="sub" style={{ margin: 0 }}>{fmtLong(curDate)}</span>
+          )}
+          <span className="cnt" aria-live="polite"><b>{done.length}</b>คนเข้าร่วม</span>
         </div>
 
         <div className="search">
@@ -234,6 +234,7 @@ function CheckIn() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
+            <button className="btn ghost icon scanbtn" aria-label="สแกนบาร์โค้ด" onClick={() => setScanning(true)}><ScanIc /></button>
           </div>
         </div>
         {err && <p className="msg bad" role="alert">{err}</p>}
@@ -296,6 +297,8 @@ function CheckIn() {
           </section>
         )}
       </main>
+
+      {scanning && <Scan onClose={() => setScanning(false)} onCode={(c) => { setScanning(false); setQ(c); }} />}
 
       {toast && (
         <div className="toast" role="status">
