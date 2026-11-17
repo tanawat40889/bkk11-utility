@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { sbBrowser } from "@/lib/supabase-browser";
 import Top from "@/components/Top";
+import { fmtLong, fmtShort, todayLocal } from "@/lib/dates";
 import { Back, Check, Plus, Search, Undo } from "@/components/icons";
 
 type M = { mt_co: number; name: string; khet: string };
 type C = M & { checked_in_at: string };
-type Ev = { name: string; event_date: string; rounds: number; counts: number[] };
+type Ev = { name: string; event_date: string; rounds: number; round_dates: string[]; counts: number[] };
 
 export default function Page() {
   return (
@@ -30,6 +31,7 @@ function CheckIn() {
   const [res, setRes] = useState<M[]>([]);
   const [resFor, setResFor] = useState("");
   const [err, setErr] = useState("");
+  const [adding, setAdding] = useState<string | null>(null);
   const [toast, setToast] = useState<{ code: number; name: string; round: number } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const input = useRef<HTMLInputElement>(null);
@@ -93,9 +95,18 @@ function CheckIn() {
   }
 
   async function addRound() {
-    const { data, error } = await sbBrowser().rpc("checkin_round_add", { p_event: id });
-    if (error) return setErr("เพิ่มรอบไม่ได้ (สูงสุด 20 รอบ)");
+    if (!adding) return;
+    const { data, error } = await sbBrowser().rpc("checkin_round_add", { p_event: id, p_date: adding });
+    if (error) return setErr("เพิ่มครั้งไม่ได้ (สูงสุด 20 ครั้ง)");
+    setAdding(null);
     pick(data as number);
+  }
+
+  async function changeDate(v: string) {
+    if (!v) return;
+    const { error } = await sbBrowser().rpc("checkin_round_set_date", { p_event: id, p_round: cur, p_date: v });
+    if (error) return setErr("แก้วันที่ไม่สำเร็จ ลองอีกครั้ง");
+    load();
   }
 
   const doneSet = new Set(done.map((d) => d.mt_co));
@@ -103,7 +114,7 @@ function CheckIn() {
   if (ev === null)
     return <><Top /><main className="page"><Link className="back" href="/events"><Back /> กิจกรรม</Link><p className="empty">ไม่พบกิจกรรม หรือไม่มีสิทธิ์เข้าถึง</p></main></>;
 
-  const dateTh = new Date(ev.event_date + "T00:00:00").toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" });
+  const curDate = ev.round_dates[cur - 1] ?? ev.event_date;
   const multi = ev.rounds > 1;
 
   return (
@@ -113,23 +124,38 @@ function CheckIn() {
         <Link className="back" href="/events"><Back /> กิจกรรม</Link>
         <div>
           <h1>{ev.name}</h1>
-          <p className="sub">{dateTh}</p>
+          <p className="sub">{multi ? `${ev.rounds} ครั้ง · ${fmtShort(ev.round_dates[0])}${ev.round_dates.some((d) => d !== ev.round_dates[0]) ? ` – ${fmtShort([...ev.round_dates].sort().at(-1)!)}` : ""}` : fmtLong(curDate)}</p>
         </div>
 
-        <div className="chips" role="group" aria-label="รอบเช็คชื่อ">
+        <div className="chips" role="group" aria-label="ครั้งที่เช็คชื่อ">
           {multi && Array.from({ length: ev.rounds }, (_, i) => i + 1).map((n) => (
             <button key={n} className="chip" aria-pressed={n === cur} onClick={() => pick(n)}>
-              รอบ {n} <small>{ev.counts[n - 1] ?? 0}</small>
+              <b>ครั้งที่ {n}</b><small>{fmtShort(ev.round_dates[n - 1])} · {ev.counts[n - 1] ?? 0} คน</small>
             </button>
           ))}
           {ev.rounds < 20 && (
-            <button className="chip add" onClick={addRound}><Plus /> {multi ? "เพิ่มรอบ" : "เพิ่มรอบเช็คชื่อ"}</button>
+            <button className="chip add" onClick={() => setAdding(adding ? null : todayLocal())}><Plus /> {multi ? "เพิ่มครั้ง" : "เพิ่มครั้งเช็คชื่อ"}</button>
           )}
+        </div>
+
+        {adding && (
+          <div className="addbox">
+            <div className="field">
+              <label htmlFor="nd">วันที่ของครั้งที่ {ev.rounds + 1}</label>
+              <input id="nd" className="input" type="date" value={adding} onChange={(e) => setAdding(e.target.value)} />
+            </div>
+            <button className="btn" onClick={addRound} disabled={!adding}>เพิ่ม</button>
+          </div>
+        )}
+
+        <div className="field">
+          <label htmlFor="cd">{multi ? `วันที่ครั้งที่ ${cur}` : "วันที่"}</label>
+          <input id="cd" className="input" type="date" value={curDate} onChange={(e) => changeDate(e.target.value)} />
         </div>
 
         <div className="stat" aria-live="polite">
           <span className="n">{done.length}</span>
-          <span className="sub" style={{ margin: 0 }}>{multi ? `คนเช็คชื่อแล้ว ในรอบที่ ${cur}` : "คนเช็คชื่อแล้ว"}</span>
+          <span className="sub" style={{ margin: 0 }}>{multi ? `คนเช็คชื่อแล้ว ในครั้งที่ ${cur}` : "คนเช็คชื่อแล้ว"}</span>
         </div>
 
         <div className="search">
@@ -178,7 +204,7 @@ function CheckIn() {
 
         {done.length > 0 && (
           <section>
-            <h2 style={{ marginBottom: 4 }}>{multi ? `รายชื่อรอบที่ ${cur}` : "รายชื่อที่เช็คแล้ว"}</h2>
+            <h2 style={{ marginBottom: 4 }}>{multi ? `รายชื่อครั้งที่ ${cur}` : "รายชื่อที่เช็คแล้ว"}</h2>
             <ul className="log">
               {done.map((d) => (
                 <li key={d.mt_co}>
@@ -195,7 +221,7 @@ function CheckIn() {
 
       {toast && (
         <div className="toast" role="status">
-          <span>เช็คชื่อ <b>{toast.name}</b> แล้ว{multi ? ` (รอบ ${toast.round})` : ""}</span>
+          <span>เช็คชื่อ <b>{toast.name}</b> แล้ว{multi ? ` (ครั้งที่ ${toast.round})` : ""}</span>
           <button className="btn sm" onClick={() => undo(toast.code, toast.round)}>ยกเลิก</button>
         </div>
       )}
