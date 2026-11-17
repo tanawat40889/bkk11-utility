@@ -32,6 +32,8 @@ function CheckIn() {
   const [resFor, setResFor] = useState("");
   const [err, setErr] = useState("");
   const [adding, setAdding] = useState<string | null>(null);
+  const [admin, setAdmin] = useState(false);
+  const [prev, setPrev] = useState<C[]>([]);
   const [toast, setToast] = useState<{ code: number; name: string; round: number } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const input = useRef<HTMLInputElement>(null);
@@ -77,6 +79,12 @@ function CheckIn() {
     }
     const { data: c } = await db.rpc("checkin_list", { p_event: id, p_round: cur });
     setDone((c as C[]) ?? []);
+    if (cur > 1) {
+      const { data: p } = await db.rpc("checkin_list", { p_event: id, p_round: cur - 1 });
+      setPrev(((p as C[]) ?? []).sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "th")));
+    } else setPrev([]);
+    const { data: a } = await db.rpc("checkin_is_admin");
+    setAdmin(a === true);
   }, [id, round, key]);
   useEffect(() => { load(); }, [load]);
 
@@ -127,6 +135,7 @@ function CheckIn() {
   }
 
   const doneSet = new Set(done.map((d) => d.mt_co));
+  const pending = prev.filter((p) => !doneSet.has(p.mt_co));
   if (ev === undefined) return <><Top /><main className="page"><p className="sub">กำลังโหลด…</p></main></>;
   if (ev === null)
     return <><Top /><main className="page"><Link className="back" href="/events"><Back /> กิจกรรม</Link><p className="empty">ไม่พบกิจกรรม หรือไม่มีสิทธิ์เข้าถึง</p></main></>;
@@ -150,12 +159,12 @@ function CheckIn() {
               <b>ครั้งที่ {n}</b><small>{fmtShort(ev.round_dates[n - 1])} · {ev.counts[n - 1] ?? 0} คน</small>
             </button>
           ))}
-          {ev.rounds < 20 && (
+          {admin && ev.rounds < 20 && (
             <button className="chip add" onClick={() => setAdding(adding ? null : todayLocal())}><Plus /> {multi ? "เพิ่มครั้ง" : "เพิ่มครั้งเช็คชื่อ"}</button>
           )}
         </div>
 
-        {adding && (
+        {admin && adding && (
           <div className="addbox">
             <div className="field">
               <label htmlFor="nd">วันที่ของครั้งที่ {ev.rounds + 1}</label>
@@ -165,10 +174,14 @@ function CheckIn() {
           </div>
         )}
 
-        <div className="field">
-          <label htmlFor="cd">{multi ? `วันที่ครั้งที่ ${cur}` : "วันที่"}</label>
-          <input id="cd" className="input" type="date" value={curDate} onChange={(e) => changeDate(e.target.value)} />
-        </div>
+        {admin ? (
+          <div className="field">
+            <label htmlFor="cd">{multi ? `วันที่ครั้งที่ ${cur}` : "วันที่"}</label>
+            <input id="cd" className="input" type="date" value={curDate} onChange={(e) => changeDate(e.target.value)} />
+          </div>
+        ) : multi ? (
+          <p className="sub" style={{ margin: 0 }}>ครั้งที่ {cur} · {fmtLong(curDate)}</p>
+        ) : null}
 
         <div className="stat" aria-live="polite">
           <span className="n">{done.length}</span>
@@ -217,6 +230,23 @@ function CheckIn() {
               })}
             </ul>
           )
+        )}
+
+        {pending.length > 0 && !q.trim() && (
+          <section>
+            <h2 style={{ marginBottom: 4 }}>จากครั้งที่ {cur - 1} · ยังไม่เช็ค {pending.length} คน</h2>
+            <ul className="res">
+              {pending.map((m) => (
+                <li key={m.mt_co} className="row">
+                  <div className="who">
+                    <strong>{m.name}</strong>
+                    <span className="num">{m.mt_co}{m.khet ? ` · เขต ${m.khet}` : ""}</span>
+                  </div>
+                  <button className="btn" onClick={() => mark(m)}>เช็คชื่อ</button>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
 
         {done.length > 0 && (

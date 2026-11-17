@@ -18,6 +18,7 @@ export default function Events() {
   const [dates, setDates] = useState<string[]>(() => [todayLocal()]);
   const [err, setErr] = useState("");
   const [open, setOpen] = useState(false);
+  const [admin, setAdmin] = useState(false);
 
   const load = useCallback(async () => {
     const db = sbBrowser();
@@ -26,6 +27,8 @@ export default function Events() {
     const { data, error } = await db.rpc("checkin_events_list");
     if (error) return setEvs(null), setErr("ไม่มีสิทธิ์เข้าใช้งาน หรือเซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่");
     setEvs((data as Ev[]) ?? []);
+    const { data: a } = await db.rpc("checkin_is_admin");
+    setAdmin(a === true);
   }, []);
   useEffect(() => { load(); }, [load]);
 
@@ -56,6 +59,7 @@ export default function Events() {
           <p className="sub">เลือกกิจกรรมเพื่อเริ่มเช็คชื่อ</p>
         </div>
 
+        {admin && (
         <details className="create" open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
           <summary><Plus /> สร้างกิจกรรมใหม่</summary>
           <form onSubmit={create}>
@@ -78,11 +82,12 @@ export default function Events() {
             <button className="btn block">สร้างกิจกรรม</button>
           </form>
         </details>
+        )}
 
         {evs === null ? (
           err ? <p className="msg bad" role="alert">{err}</p> : <p className="sub">กำลังโหลด…</p>
         ) : evs.length === 0 ? (
-          <p className="empty">ยังไม่มีกิจกรรม<br />กด “สร้างกิจกรรมใหม่” เพื่อเริ่มต้น</p>
+          <p className="empty">ยังไม่มีกิจกรรม{admin ? <><br />กด “สร้างกิจกรรมใหม่” เพื่อเริ่มต้น</> : null}</p>
         ) : (
           <ul className="list">
             {evs.map((e) => (
