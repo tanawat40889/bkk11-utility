@@ -1,0 +1,204 @@
+"use client";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { sbBrowser } from "@/lib/supabase-browser";
+import Top from "@/components/Top";
+import { Back, Check, Plus, Search, Undo } from "@/components/icons";
+
+type M = { mt_co: number; name: string; khet: string };
+type C = M & { checked_in_at: string };
+type Ev = { name: string; event_date: string; rounds: number; counts: number[] };
+
+export default function Page() {
+  return (
+    <Suspense fallback={<><Top /><main className="page"><p className="sub">กำลังโหลด…</p></main></>}>
+      <CheckIn />
+    </Suspense>
+  );
+}
+
+function CheckIn() {
+  const id = useSearchParams().get("id") ?? "";
+  const r = useRouter();
+  const rr = useRef(r);
+  rr.current = r;
+  const [ev, setEv] = useState<Ev | null | undefined>(undefined);
+  const [round, setRound] = useState(1);
+  const [done, setDone] = useState<C[]>([]);
+  const [q, setQ] = useState("");
+  const [res, setRes] = useState<M[]>([]);
+  const [resFor, setResFor] = useState("");
+  const [err, setErr] = useState("");
+  const [toast, setToast] = useState<{ code: number; name: string; round: number } | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const input = useRef<HTMLInputElement>(null);
+  const key = `bkk11-round-${id}`;
+
+  // remember which round this device was on
+  useEffect(() => {
+    try { const v = Number(localStorage.getItem(key)); if (v >= 1) setRound(v); } catch {}
+  }, [key]);
+  const pick = (n: number) => {
+    setRound(n);
+    setQ("");
+    setToast(null);
+    try { localStorage.setItem(key, String(n)); } catch {}
+  };
+
+  const load = useCallback(async () => {
+    const db = sbBrowser();
+    const { data: s } = await db.auth.getSession();
+    if (!s.session) return rr.current.replace("/login");
+    if (!id) return setEv(null);
+    const { data: e } = await db.rpc("checkin_event_get", { p_id: id });
+    const row = (e?.[0] as Ev | undefined) ?? null;
+    setEv(row);
+    if (!row) return;
+    const cur = Math.min(round, row.rounds);
+    const { data: c } = await db.rpc("checkin_list", { p_event: id, p_round: cur });
+    setDone((c as C[]) ?? []);
+  }, [id, round]);
+  useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    const t = q.trim();
+    if (!t) { setRes([]); setResFor(""); return; }
+    const h = setTimeout(async () => {
+      const { data } = await sbBrowser().rpc("checkin_search", { p_q: t });
+      setRes((data as M[]) ?? []);
+      setResFor(t);
+    }, 200);
+    return () => clearTimeout(h);
+  }, [q]);
+
+  const cur = ev ? Math.min(round, ev.rounds) : 1;
+
+  async function mark(m: M) {
+    setErr("");
+    const { error } = await sbBrowser().rpc("checkin_mark", { p_event: id, p_round: cur, p_mt: m.mt_co });
+    if (error) return setErr("เช็คชื่อไม่สำเร็จ ลองอีกครั้ง");
+    setQ("");
+    setToast({ code: m.mt_co, name: m.name, round: cur });
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setToast(null), 6000);
+    input.current?.focus();
+    load();
+  }
+
+  async function undo(code: number, rd = cur) {
+    await sbBrowser().rpc("checkin_undo", { p_event: id, p_round: rd, p_mt: code });
+    if (toast?.code === code) setToast(null);
+    load();
+  }
+
+  async function addRound() {
+    const { data, error } = await sbBrowser().rpc("checkin_round_add", { p_event: id });
+    if (error) return setErr("เพิ่มรอบไม่ได้ (สูงสุด 20 รอบ)");
+    pick(data as number);
+  }
+
+  const doneSet = new Set(done.map((d) => d.mt_co));
+  if (ev === undefined) return <><Top /><main className="page"><p className="sub">กำลังโหลด…</p></main></>;
+  if (ev === null)
+    return <><Top /><main className="page"><Link className="back" href="/events"><Back /> กิจกรรม</Link><p className="empty">ไม่พบกิจกรรม หรือไม่มีสิทธิ์เข้าถึง</p></main></>;
+
+  const dateTh = new Date(ev.event_date + "T00:00:00").toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" });
+  const multi = ev.rounds > 1;
+
+  return (
+    <>
+      <Top />
+      <main className="page" style={{ paddingTop: 8 }}>
+        <Link className="back" href="/events"><Back /> กิจกรรม</Link>
+        <div>
+          <h1>{ev.name}</h1>
+          <p className="sub">{dateTh}</p>
+        </div>
+
+        <div className="chips" role="group" aria-label="รอบเช็คชื่อ">
+          {multi && Array.from({ length: ev.rounds }, (_, i) => i + 1).map((n) => (
+            <button key={n} className="chip" aria-pressed={n === cur} onClick={() => pick(n)}>
+              รอบ {n} <small>{ev.counts[n - 1] ?? 0}</small>
+            </button>
+          ))}
+          {ev.rounds < 20 && (
+            <button className="chip add" onClick={addRound}><Plus /> {multi ? "เพิ่มรอบ" : "เพิ่มรอบเช็คชื่อ"}</button>
+          )}
+        </div>
+
+        <div className="stat" aria-live="polite">
+          <span className="n">{done.length}</span>
+          <span className="sub" style={{ margin: 0 }}>{multi ? `คนเช็คชื่อแล้ว ในรอบที่ ${cur}` : "คนเช็คชื่อแล้ว"}</span>
+        </div>
+
+        <div className="search">
+          <div className="wrap">
+            <Search />
+            <input
+              ref={input}
+              className="input"
+              autoFocus
+              inputMode="search"
+              enterKeyHint="search"
+              autoComplete="off"
+              aria-label="ค้นหาด้วยรหัสสมาชิก หรือชื่อ"
+              placeholder="รหัสสมาชิก หรือชื่อ"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </div>
+        </div>
+        {err && <p className="msg bad" role="alert">{err}</p>}
+
+        {q.trim() && resFor === q.trim() && (
+          res.length === 0 ? (
+            <p className="empty">ไม่พบสมาชิกในภาคของคุณ</p>
+          ) : (
+            <ul className="res">
+              {res.map((m) => {
+                const ok = doneSet.has(m.mt_co);
+                return (
+                  <li key={m.mt_co} className={`row${ok ? " done" : ""}`}>
+                    <div className="who">
+                      <strong>{m.name}</strong>
+                      <span className="num">{m.mt_co} · เขต {m.khet}</span>
+                    </div>
+                    {ok ? (
+                      <span className="tag"><Check /> เช็คแล้ว</span>
+                    ) : (
+                      <button className="btn" onClick={() => mark(m)}>เช็คชื่อ</button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )
+        )}
+
+        {done.length > 0 && (
+          <section>
+            <h2 style={{ marginBottom: 4 }}>{multi ? `รายชื่อรอบที่ ${cur}` : "รายชื่อที่เช็คแล้ว"}</h2>
+            <ul className="log">
+              {done.map((d) => (
+                <li key={d.mt_co}>
+                  <span className="tag" style={{ paddingRight: 0 }}><Check /></span>
+                  <div className="nm">{d.name}<small className="num">{d.mt_co}{d.khet ? ` · เขต ${d.khet}` : ""}</small></div>
+                  <span className="time num">{new Date(d.checked_in_at).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}</span>
+                  <button className="btn ghost sm icon" aria-label={`ยกเลิกการเช็คชื่อ ${d.name ?? d.mt_co}`} onClick={() => undo(d.mt_co)}><Undo /></button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </main>
+
+      {toast && (
+        <div className="toast" role="status">
+          <span>เช็คชื่อ <b>{toast.name}</b> แล้ว{multi ? ` (รอบ ${toast.round})` : ""}</span>
+          <button className="btn sm" onClick={() => undo(toast.code, toast.round)}>ยกเลิก</button>
+        </div>
+      )}
+    </>
+  );
+}
