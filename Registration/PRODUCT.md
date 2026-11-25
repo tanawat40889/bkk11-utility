@@ -13,9 +13,9 @@ Staff at district (เขต) level or above of BKK11, checking members in at ev
 Attendance check-in: staff create an event, search a member by 8-digit code or name, and mark them present. Staff see only their own region (ภาค). Success = a check-in takes seconds and a mistaken tap is easy to undo.
 
 ## Capabilities and Constraints
-- Routes: /login (member code only; Supabase Edge Function checkin-login in project bkk11-tokan; position เขต or higher per tokan.po_nt), /events, /events/[id].
+- Routes: /login (member code only; Supabase Edge Function checkin-login in project bkk11-tokan; position เขต or higher per tokan.position_name), /events, /events/[id].
 - Next.js app router + Supabase; all pages are client components using inline-style-free CSS in app/globals.css.
-- Data: shared Supabase project bkk11-tokan. Members = table tokan (mt_co = member code, phak_nt = ภาค, sh_nt = เขต, po_nt = position). Own tables checkin_events/checkin_records, accessed only via checkin_* RPCs.
+- Data: shared Supabase project bkk11-tokan. Members = table tokan (mt_co = member code, phak_name = ภาค, khet_name = เขต, position_name = position). Own tables checkin_events/checkin_records, accessed only via checkin_* RPCs.
 
 ## Brand Commitments
 Name: BKK11 (รวมภาคกรุงเทพ). Logo supplied: public/logo.png (3D bold blue wordmark with an orange tagline bar). Brand colours from it: blue #0046c3 (primary), orange #ff833f (accent). Tokens live in app/globals.css. Warm, friendly tone (user's choice), not stiff or bureaucratic.

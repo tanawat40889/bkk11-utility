@@ -57,15 +57,15 @@ Deno.serve(async (req) => {
   if (!/^\d{1,12}$/.test(code)) return await fail([keys[1]]);
 
   const { data: m } = await admin.from('tokan')
-    .select('mt_co,name_t,saku_t,po_nt,phak_nt,sh_nt,ch_nt,ha_nt').eq('mt_co', Number(code)).maybeSingle();
+    .select('mt_co,given_name,family_name,position_name,phak_name,khet_name,tambon_name,moo_name').eq('mt_co', Number(code)).maybeSingle();
   if (!m) return await fail(keys);
-  const level = levelOf(m.po_nt);
+  const level = levelOf(m.position_name);
   if (level !== 'khet' && level !== 'phak' && level !== 'all') return await fail(keys);
   const { data: blocked } = await admin.from('member_blocks').select('mt_co').eq('mt_co', m.mt_co).maybeSingle();
   if (blocked) return await fail(keys);
 
-  const name = norm([m.name_t, m.saku_t].filter(Boolean).join(' '));
-  const claims = { mt_co: m.mt_co, level, po: m.po_nt, name, phak: m.phak_nt, khet: m.sh_nt, tambon: m.ch_nt, moo: m.ha_nt };
+  const name = norm([m.given_name, m.family_name].filter(Boolean).join(' '));
+  const claims = { mt_co: m.mt_co, level, po: m.position_name, name, phak: m.phak_name, khet: m.khet_name, tambon: m.tambon_name, moo: m.moo_name };
   const email = `m${m.mt_co}@login.bkk11.invalid`;
 
   const link = await admin.auth.admin.generateLink({ type: 'magiclink', email });
@@ -78,6 +78,6 @@ Deno.serve(async (req) => {
   const s = ver.data.session;
   return json({
     session: { access_token: s.access_token, refresh_token: s.refresh_token, expires_at: s.expires_at },
-    profile: { name, po: m.po_nt, level, phak: m.phak_nt, khet: m.sh_nt },
+    profile: { name, po: m.position_name, level, phak: m.phak_name, khet: m.khet_name },
   });
 });
