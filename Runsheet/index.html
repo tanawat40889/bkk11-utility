@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>คิวงาน กิมจู &amp; ณัฐ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+/* VOICE: calm stage-manager cue card for a wedding ceremony; the operator announces and prepares what comes NEXT.
+   IDEA: the printed run sheet turned into a flip card: a slim "now" strip, a big "next" card, one big button.
+   PICTURE: the NEXT card, large, with what to prepare (files, sound, light, who to call); the full sheet beside it.
+   COLOUR and TYPE: white paper, near-black ink, crimson accent, highlighter pink for marked notes; IBM Plex Sans Thai.
+   LAYOUT: iPad landscape = cue cards left, sheet right; portrait/phone = stacked; editing in a sheet-style dialog. */
+:root{color-scheme:light dark;
+  --bg:light-dark(#ffffff,#141012);--paper:light-dark(#faf7f5,#1d171a);--ink:light-dark(#1b1416,#f4ecee);
+  --mute:light-dark(#6c5f63,#b3a4a9);--line:light-dark(#e8dfe1,#33292d);--acc:light-dark(#b3122e,#ff5c76);
+  --acc-ink:light-dark(#fff,#1b0a0e);--acc-soft:light-dark(#fbe7ea,#3a1a21);--mark:light-dark(#ffd1dc,#5a2433);--ok:light-dark(#1f7a4d,#5fd39a);
+  --m:light-dark(#1d4ed8,#8fb0ff);--v:light-dark(#7c3aed,#c4a6ff);--s:light-dark(#b45309,#ffb766)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "IBM Plex Sans Thai",system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+button,input,textarea,select{font:inherit;color:inherit}
+svg.i{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.top{display:flex;align-items:center;gap:14px;padding:10px max(2.5vw,16px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.top h1{font-size:20px;line-height:1.2;margin:0;font-weight:700}
+.top .sub{color:var(--mute);font-size:14px}
+.sync{font-size:13px;color:var(--mute)}.sync.bad{color:var(--acc)}
+.tbtn{margin-left:auto;min-height:44px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.tbtn[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.app{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);height:calc(100vh - 70px);height:calc(100dvh - 70px)}
+.main{padding:14px max(2.5vw,16px);display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.side{border-left:1px solid var(--line);background:var(--paper);overflow-y:auto;padding:8px 0 40px}
+/* now: slim strip */
+.now{flex:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:12px 16px;border-radius:16px;background:var(--paper);border:1px solid var(--line)}
+.now .tag{font-size:14px;font-weight:600;color:var(--mute);border:1.5px solid var(--line);border-radius:999px;padding:1px 10px;white-space:nowrap}
+.now .nt{font-size:19px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.now .nt small{font-weight:400;color:var(--mute);font-size:15px;margin-left:8px}
+.now .tm{font-variant-numeric:tabular-nums;color:var(--mute);font-size:15px;white-space:nowrap}
+/* next: the focus */
+.next{flex:1 1 auto;min-height:0;overflow-y:auto;border-radius:22px;padding:18px 22px;border:2.5px solid var(--acc);background:var(--bg);box-shadow:0 12px 32px -20px rgb(179 18 46 / .5)}
+.lbl{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--mute);flex-wrap:wrap}
+.lbl .tag{background:var(--acc);color:var(--acc-ink);border-radius:999px;padding:3px 14px;font-weight:700;font-size:18px}
+.lbl .when{color:var(--ink);font-weight:600;font-size:20px;font-variant-numeric:tabular-nums}
+.next h2{font-size:clamp(32px,4vw,50px);line-height:1.1;margin:8px 0 4px;text-wrap:balance}
+.next h2 .mc{display:block;font-size:.5em;color:var(--acc);font-weight:600;margin-bottom:2px}
+.who{font-size:20px;margin:0 0 12px;white-space:pre-line}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:2px solid currentColor;border-radius:10px;padding:3px 12px;font-weight:700;font-size:19px;font-variant-numeric:tabular-nums}
+.chip.m{color:var(--m)}.chip.v{color:var(--v)}.chip.s{color:var(--s)}.chip i{font-style:normal;font-weight:500;opacity:.8;font-size:15px}
+.cues{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.cue{display:grid;grid-template-columns:26px 96px minmax(0,1fr);gap:10px;align-items:start;padding:8px 12px;border-radius:14px;background:var(--paper)}
+.cue .k{color:var(--mute);font-size:15px;padding-top:2px}
+.cue .t{font-size:18px}
+.cue.hi .t{background:var(--mark);border-radius:6px;padding:0 6px;box-decoration-break:clone;-webkit-box-decoration-break:clone;font-weight:600}
+.cue ol{margin:4px 0 0;padding-left:22px}
+.then{margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:17px}
+.then b{color:var(--mute);font-weight:500;margin-right:6px}
+.ctl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.6fr);gap:12px;flex:none}
+.btn{min-height:76px;border-radius:20px;border:1.5px solid var(--line);background:var(--paper);font-size:21px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;touch-action:manipulation;padding:0 14px;text-align:center;line-height:1.25}
+.btn.go{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);font-size:24px}
+.btn.go>span{max-width:100%}
+.btn.go small{display:block;font-size:15px;font-weight:500;opacity:.9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.4;cursor:default;transform:none}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+/* sheet */
+details.info{margin:8px 16px 4px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+details.info summary{cursor:pointer;padding:10px 14px;font-weight:600;min-height:44px;display:flex;align-items:center}
+details.info dl{margin:0;padding:0 14px 12px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:15px}
+details.info dt{color:var(--mute)}details.info dd{margin:0}
+.sec{font-size:14px;color:var(--mute);font-weight:600;padding:16px 18px 4px}
+.row{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:10px;align-items:start;width:100%;text-align:left;border:0;background:none;padding:9px 18px 9px 14px;cursor:pointer;min-height:48px;border-left:4px solid transparent}
+.row .tm{font-variant-numeric:tabular-nums;font-weight:600;font-size:16px}
+.row .ti{font-weight:600;font-size:17px;line-height:1.35}
+.row .ds{display:block;color:var(--mute);font-size:14px;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .ed{display:none;color:var(--acc);align-self:center}
+.editing .row .ed{display:block}
+.row.mc{padding-block:5px;min-height:44px}.row.mc .ti{font-weight:500;font-size:15px;color:var(--mute)}
+.row.done{opacity:.45}.row.done .tm::after{content:" ✓";color:var(--ok)}
+.row.cur{background:var(--bg);border-left-color:var(--mute);opacity:1}
+.row.nx{background:var(--acc-soft);border-left-color:var(--acc)}.row.nx .tm{color:var(--acc)}
+.editing .row{opacity:1}
+.sidebtns{display:flex;flex-wrap:wrap;gap:8px;margin:16px 18px}
+.ghost{color:var(--mute);background:none;border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-height:44px;cursor:pointer}
+.add{color:var(--acc);border-color:var(--acc);font-weight:600}
+/* editor */
+dialog{border:0;border-radius:22px;padding:0;width:min(680px,94vw);max-height:92dvh;background:var(--bg);color:var(--ink);box-shadow:0 30px 80px -20px rgb(0 0 0 / .5)}
+dialog::backdrop{background:rgb(20 10 14 / .45)}
+dialog form{display:flex;flex-direction:column;max-height:92dvh}
+.dh{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line)}
+.dh h3{margin:0;font-size:20px;flex:1}
+.db{padding:16px 20px;overflow-y:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 14px}
+.f{display:grid;gap:4px}.f.w{grid-column:1/-1}
+.f label,.f .fl{font-size:14px;color:var(--mute);font-weight:600}
+.f input,.f textarea{width:100%;min-height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);padding:8px 12px;font-size:16px}
+.f textarea{min-height:70px;resize:vertical;line-height:1.45}
+.f input:focus,.f textarea:focus{outline:none;border-color:var(--acc)}
+.f .h{font-size:13px;color:var(--mute)}
+.seg{display:flex;gap:6px}.seg label{position:relative;flex:1;display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:12px;border:1.5px solid var(--line);cursor:pointer;font-size:16px;color:var(--ink);font-weight:500}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg label:has(input:checked){border-color:var(--acc);background:var(--acc-soft);font-weight:700}
+.seg label:has(input:focus-visible){outline:3px solid var(--acc);outline-offset:2px}
+.df{display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px;border-top:1px solid var(--line)}
+.df .sp{flex:1}
+.df button{min-height:48px;border-radius:12px;padding:0 16px;border:1.5px solid var(--line);background:var(--paper);cursor:pointer;font-weight:600}
+.df button:disabled{opacity:.4;cursor:default}
+.df .save{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);min-width:110px}
+.df .del{color:var(--acc)}
+.df .del.arm{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.x{min-width:44px;min-height:44px;border-radius:12px;border:0;background:none;cursor:pointer;color:var(--mute)}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr);height:auto}
+  .main{overflow:visible}.next{overflow:visible}.side{border-left:0;border-top:1px solid var(--line);overflow:visible}
+  .ctl{position:sticky;bottom:0;padding:8px 0 12px;background:var(--bg)}
+}
+@media (max-width:600px){
+  .cue{grid-template-columns:24px minmax(0,1fr)}.cue .k,.cue .t{grid-column:2}
+  .db{grid-template-columns:minmax(0,1fr)}
+  .btn{min-height:64px;font-size:18px}.btn.go{font-size:20px}
+  .now{grid-template-columns:minmax(0,1fr) auto}.now .tag{display:none}
+}
+@media (prefers-reduced-motion:reduce){.btn:active{transform:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>พิธีสวดมนต์มงคลสมรส กิมจู &amp; ณัฐ</h1>
+    <div class="sub">เสาร์ 28 พ.ย. 2569 · 10.00–11.20 น. · ห้องพระใหญ่ สมาคมฯ ธนบุรี <span class="sync" id="sync"></span></div>
+  </div>
+  <button class="tbtn" id="edit" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>แก้ไข</button>
+</header>
+
+<div class="app">
+  <main class="main">
+    <section class="now" id="now" aria-label="รายการที่กำลังดำเนินอยู่"></section>
+    <section class="next" id="next" aria-live="polite"></section>
+    <div class="ctl">
+      <button class="btn" id="prev" aria-label="ย้อนกลับหนึ่งรายการ"><svg class="i" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg>ย้อน</button>
+      <button class="btn go" id="go"></button>
+    </div>
+  </main>
+
+  <aside class="side" id="side" aria-label="กำหนดการทั้งหมด">
+    <details class="info">
+      <summary>ข้อมูลงาน</summary>
+      <dl>
+        <dt>เจ้าบ่าว</dt><dd>นายพีรณัฐ ศิริวัชราวงศ์ (ณัฐ)</dd>
+        <dt>เจ้าสาว</dt><dd>นางสาวกันทิมา แซ่ตั้ง (กิมจู)</dd>
+        <dt>พิธีกร</dt><dd>1) นายพชร สาธิตธนาภัทร (ชวง)<br>2) นางสาวณัฐพนา พิทยครรชิต (ปิงปิง)</dd>
+        <dt>สถานที่</dt><dd>ห้องพระใหญ่ สมาคมฯ ธนบุรี</dd>
+      </dl>
+    </details>
+    <div id="list"></div>
+    <div class="sidebtns">
+      <button class="ghost add" id="addEnd" hidden>+ เพิ่มรายการท้ายสุด</button>
+      <button class="ghost" id="reset">เริ่มใหม่จากรายการแรก</button>
+      <button class="ghost" id="restore" hidden>คืนค่าใบคิวต้นฉบับ</button>
+    </div>
+  </aside>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgT">
+  <form method="dialog" id="frm">
+    <div class="dh"><h3 id="dlgT">แก้ไขรายการ</h3><button type="button" class="x" id="close" aria-label="ปิด"><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="db">
+      <div class="f w"><span class="fl">ประเภท</span>
+        <div class="seg"><label><input type="radio" name="mc" value="0">รายการ</label><label><input type="radio" name="mc" value="1">พิธีกรพูด</label></div></div>
+      <div class="f w"><label for="f-ti">ชื่อรายการ / สิ่งที่พิธีกรพูด</label><input id="f-ti" name="ti" required></div>
+      <div class="f"><label for="f-t">เวลาเริ่ม</label><input id="f-t" name="t" inputmode="decimal" placeholder="10.05"></div>
+      <div class="f"><label for="f-e">เวลาจบ</label><input id="f-e" name="e" inputmode="decimal" placeholder="10.20"></div>
+      <div class="f w"><label for="f-who">ผู้รับผิดชอบ</label><textarea id="f-who" name="who" rows="2"></textarea></div>
+      <div class="f w"><label for="f-cues">ไฟล์ / คิว</label><input id="f-cues" name="cues" placeholder="M001, V001, จอขึ้น"><span class="h">คั่นด้วยจุลภาค · ขึ้นต้น M = เพลง, V = วีดีโอ, จอ = จอขึ้น/ลง</span></div>
+      <div class="f w"><label for="f-hi">แจ้ง / เตรียม (ไฮไลต์)</label><textarea id="f-hi" name="hi" rows="2"></textarea></div>
+      <div class="f"><label for="f-snd">เพลง / เสียง</label><textarea id="f-snd" name="snd" rows="2"></textarea></div>
+      <div class="f"><label for="f-lit">แสง / จอ</label><textarea id="f-lit" name="lit" rows="2"></textarea></div>
+      <div class="f w"><label for="f-note">หมายเหตุ</label><textarea id="f-note" name="note" rows="2"></textarea></div>
+      <div class="f w"><label for="f-order">ลำดับย่อย (บรรทัดละ 1 ข้อ)</label><textarea id="f-order" name="order" rows="2"></textarea></div>
+      <div class="f w"><label for="f-sec">ช่วง</label><input id="f-sec" name="section" list="secs"><datalist id="secs"></datalist></div>
+    </div>
+    <div class="df">
+      <button type="button" class="del" id="del">ลบรายการ</button>
+      <button type="button" id="up">▲ ขึ้น</button>
+      <button type="button" id="down">▼ ลง</button>
+      <button type="button" id="addBelow">+ เพิ่มใต้รายการนี้</button>
+      <span class="sp"></span>
+      <button type="submit" class="save" id="save">บันทึก</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+{
+const MC = "ชวง / ปิงปิง";
+const W = "ช่วงกล่าวอวยพร (ตัวแทน 4 ฝ่าย ท่านละ ~5 นาที)", PV = "ช่วงหลังพิธีการ — วีดีทัศน์ & การแสดง (Surprise บ่าวสาว)";
+// built-in copy of the printed sheet (with its handwritten marks); used until the shared copy loads, or if it cannot
+const DEF = [
+ {section:"ช่วงก่อนเริ่มพิธี", t:"09.30", e:"09.55", ti:"ก่อนเริ่มพิธี", snd:"เพลงระหว่างรายการ (เสียงจากคอม)", lit:"ไฟเต็มห้อง",
+  note:"เปิดไฟล์ทุกไฟล์ทดสอบให้เสร็จก่อน 09:30", hi:"แจ้ง โชคาฮัน ไม่ต้องยกสัม รอช่วงวีดีทัศน์บ่าวสาว", cues:"M001, V001"},
+ {section:"ช่วงก่อนเริ่มพิธี", t:"09.55", e:"10.00", ti:"พิธีกรกล่าวต้อนรับ", mc:1, who:MC, snd:"ค่อยๆ หรี่เพลงระหว่างรายการจนเงียบ ก่อนพิธีกรเริ่มพูด", lit:"ไฟเต็มห้อง",
+  note:"แนะนำสมาคมฯ + แนะนำบ่าวสาว / บ่าวสาวรอหน้าประตูห้องพระใหญ่", cues:"จอขึ้น"},
+ {section:"ช่วงเชิญบ่าวสาว", t:"10.00", e:"10.05", ti:"บ่าวสาวเดินเข้า", who:"บ่าว - สาว", snd:"เพลงส่งตัวเจ้าสาว (คลอ) → fade ออกเมื่อบ่าวสาวถึงที่นั่ง", lit:"ประตูห้องพระใหญ่เปิด", cues:"M002"},
+ {section:"ช่วงพิธีการ", t:"10.05", ti:"เปิดพิธีการ + เชิญผู้นำสวด", mc:1, who:MC, snd:"เงียบ"},
+ {section:"ช่วงพิธีการ", t:"10.05", e:"10.20", ti:"สวดมนต์", who:"คุณไพฑูรย์ งามสิริกุล\n(ผู้ช่วยหัวหน้าฝ่ายผู้ใหญ่ชาย และรักษาการหัวหน้าภูมิภาคมหานคร 3)", snd:"เงียบ", note:"สวดเสร็จ ยังไม่ปิดตู้พระ"},
+ {section:"ช่วงพิธีการ", ti:"เชิญบัวขาวทำพิธีดื่มเหล้า", mc:1, who:MC},
+ {section:"ช่วงพิธีการ", t:"10.20", e:"10.30", ti:"ดื่มเหล้ามงคล", who:"คุณกรรณิการ์ สกุลสุขประเสริฐ", snd:"เงียบ"},
+ {section:"ช่วงพิธีการ", ti:"เชิญคุณไพฑูรย์ ประกอบพิธีแลกแหวน", mc:1, who:MC},
+ {section:"ช่วงพิธีการ", t:"10.30", e:"10.35", ti:"แลกแหวน", who:"คุณไพฑูรย์ งามสิริกุล", snd:"เงียบ"},
+ {section:W, ti:"เชิญตัวแทนฝ่ายยุวชนหญิง", mc:1, who:MC},
+ {section:W, t:"10.35", e:"10.40", ti:"อวยพร ยุวชนหญิง", who:"1) คุณนภัสกนก คุณศักดิ์พิทักษ์ (ผู้รับผิดชอบวงโคเทคิไท)\n2) คุณกรกนก ศุภนิราพาธ (ผู้รับผิดชอบกลุ่มบัวขาว)", snd:"เงียบ"},
+ {section:W, ti:"เชิญตัวแทนฝ่ายยุวชนชาย", mc:1, who:MC},
+ {section:W, t:"10.40", e:"10.45", ti:"อวยพร ยุวชนชาย", who:"คุณทวีศักดิ์ วัฒนสุทธิพงศ์ (หัวหน้ายุวชน)", snd:"เงียบ"},
+ {section:W, ti:"เชิญตัวแทนฝ่ายผู้ใหญ่หญิง", mc:1, who:MC},
+ {section:W, t:"10.45", e:"10.50", ti:"อวยพร ผู้ใหญ่หญิง", who:"คุณสุวรรณา อำมฤตโชค (ผู้ช่วยหัวหน้าภาค ฝ่ายผู้ใหญ่หญิง)", snd:"เงียบ"},
+ {section:W, ti:"เชิญตัวแทนฝ่ายผู้ใหญ่ชาย", mc:1, who:MC},
+ {section:W, t:"10.50", e:"10.55", ti:"อวยพร ผู้ใหญ่ชาย", who:"คุณเอกชาติ ล้อวชิระวัฎฏ์ (ผู้ช่วยหัวหน้ารวมภาค ฝ่ายผู้ใหญ่ชาย)", snd:"เงียบ"},
+ {section:W, ti:"เชิญตัวแทนฝ่ายเจ้าภาพ", mc:1, who:MC},
+ {section:W, t:"10.55", e:"11.00", ti:"เจ้าภาพกล่าวขอบคุณ", who:"คุณสุชาติ ศิริวัชราวงศ์", snd:"เงียบ"},
+ {section:"ปิดพิธีการ", ti:"สรุปพิธี + เชิญผู้นำสวดไดโมขุ 3 คำ", mc:1, who:MC},
+ {section:"ปิดพิธีการ", t:"11.00", e:"11.02", ti:"สวดไดโมขุ 3 คำ", who:"ผู้นำสวด : คุณไพฑูรย์ งามสิริกุล", snd:"เงียบ", note:"หลังไดโมขุ 3 คำ จึงปิดตู้โงะฮนซน", cues:"จอลง"},
+ {section:PV, ti:"เชิญชมวีดีทัศน์บ่าวสาว", mc:1, who:MC},
+ {section:PV, t:"11.02", e:"11.07", ti:"วีดีทัศน์บ่าวสาว", snd:"เสียงวีดีทัศน์จากคอม", lit:"หรี่ไฟ + ขึ้นจอ → เปิดไฟคืนเมื่อจบ",
+  note:"ฉายหลังจบพิธีการเท่านั้น", hi:"เตรียมบ่าว", cues:"V002"},
+ {section:"ช่วงถ่ายภาพ", t:"11.22", e:"11.30", ti:"ถ่ายภาพ", who:"แขก (ทีละกลุ่ม)", snd:"เพลงคลอเบาๆ ตลอดช่วง", lit:"ไฟเต็มห้อง",
+  note:"บ่าวสาวอยากถ่ายภาพกับผู้เข้าร่วมงานทุกคน / ห้ามถ่ายภาพโงะฮนซนช่วงพิธีการ",
+  order:["ฝ่ายผู้ใหญ่หญิง","ฝ่ายผู้ใหญ่ชาย","ฝ่ายยุวชนหญิง","ฝ่ายยุวชนชาย","ฝ่ายยุวชนชายหญิง (รวม)","ญาติผู้ใหญ่"], cues:"M001"},
+ {section:"จบงาน", ti:"ส่งแขก", snd:"เพลงระหว่างรายการ", lit:"ไฟเต็มห้อง"},
+];
+
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2, "0");
+const TRE = /^(\d{1,2})[.:](\d{2})$/;
+const normT = t => { const m = TRE.exec(String(t || "").trim()); return m ? `${pad(+m[1])}.${m[2]}` : String(t || "").trim(); };
+const uid = () => "i" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const str = v => typeof v === "string" ? v : "";
+// shared data is untrusted: keep only known fields, as plain strings
+const clean = a => (Array.isArray(a) ? a : []).filter(x => x && typeof x === "object").slice(0, 300).map((x, k) => ({
+  id: /^[\w-]{1,40}$/.test(str(x.id)) ? x.id : "x" + k, section: str(x.section), t: str(x.t), e: str(x.e), ti: str(x.ti), mc: x.mc ? 1 : 0,
+  who: str(x.who), snd: str(x.snd), lit: str(x.lit), note: str(x.note), hi: str(x.hi), cues: str(x.cues),
+  order: Array.isArray(x.order) ? x.order.filter(o => typeof o === "string").slice(0, 40) : [],
+}));
+const DEFAULT = clean(DEF.map((s, k) => ({ id: "d" + k, ...s })));
+
+const ICON = {
+  hi:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>',
+  snd:'<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>',
+  lit:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+  note:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h5"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+};
+const ic = k => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
+const cueList = s => str(s.cues).split(/[,\n]/).map(x => x.trim()).filter(Boolean).map(x =>
+  /^m\d/i.test(x) ? ["m", "เพลง", x.toUpperCase()] : /^v\d/i.test(x) ? ["v", "วีดีโอ", x.toUpperCase()] :
+  /^(จอ|screen)/i.test(x) ? ["s", "จอ", x.replace(/^(จอ|screen)\s*/i, "") || "-"] : ["s", "คิว", x]);
+const chips = s => cueList(s).map(([k, l, t]) => `<span class="chip ${k}"><i>${l}</i>${esc(t)}</span>`).join("");
+const first = w => str(w).split("\n")[0];
+
+// ---------- state ----------
+const KEY = "runsheet-kimju-nat-v2";
+let items = DEFAULT, live = { id: DEFAULT[0].id, at: {} }, editing = false;
+try { const c = JSON.parse(localStorage.getItem(KEY)); if (c?.items?.length) items = clean(c.items); if (typeof c?.live?.id === "string") live = { id: c.live.id, at: c.live.at || {} }; } catch {}
+const cache = () => { try { localStorage.setItem(KEY, JSON.stringify({ items, live })); } catch {} };
+const idx = () => { const i = items.findIndex(x => x.id === live.id); return i < 0 ? 0 : i; };
+function setSync(t, bad) { const s = $("sync"); s.textContent = t ? "· " + t : ""; s.className = "sync" + (bad ? " bad" : ""); }
+
+// ---------- render ----------
+function renderNow() {
+  const s = items[idx()];
+  if (!s) { $("now").innerHTML = ""; return; }
+  $("now").innerHTML = `<span class="tag">ตอนนี้</span>
+    <span class="nt">${s.mc ? "พิธีกร: " : ""}${esc(s.ti)}${s.who && !s.mc ? `<small>${esc(first(s.who))}</small>` : ""}</span>
+    <span class="tm">${esc(s.t)}${s.e ? "–" + esc(s.e) : ""}</span>`;
+}
+
+function cueRows(s) {
+  const r = [];
+  if (s.hi) r.push(["hi", "แจ้ง / เตรียม", esc(s.hi), 1]);
+  if (s.snd) r.push(["snd", "เพลง / เสียง", esc(s.snd)]);
+  if (s.lit) r.push(["lit", "แสง / จอ", esc(s.lit)]);
+  if (s.note || s.order.length) r.push(["note", "หมายเหตุ", esc(s.note) + (s.order.length ? `<ol>${s.order.map(o => `<li>${esc(o)}</li>`).join("")}</ol>` : "")]);
+  return r.map(([k, l, t, h]) => `<li class="cue${h ? " hi" : ""}">${ic(k)}<span class="k">${l}</span><span class="t">${t}</span></li>`).join("");
+}
+
+function renderNext() {
+  const i = idx(), n = items[i + 1], after = items[i + 2];
+  if (!n) { $("next").innerHTML = `<div class="lbl"><span class="tag">ต่อไป</span></div><h2>จบกำหนดการ</h2>`; return; }
+  const ac = after ? cueList(after).map(c => c[0] === "s" ? "จอ" + c[2] : c[2]) : [];
+  $("next").innerHTML = `
+    <div class="lbl"><span class="tag">ต่อไป</span>${n.t ? `<span class="when">${esc(n.t)}${n.e ? "–" + esc(n.e) : ""}</span>` : ""}${n.section !== items[i].section ? `<span>· ${esc(n.section)}</span>` : ""}</div>
+    <h2>${n.mc ? `<span class="mc">พิธีกร ${esc(n.who)}</span>` : ""}${esc(n.ti)}</h2>
+    ${n.who && !n.mc ? `<p class="who">${esc(n.who)}</p>` : ""}
+    ${cueList(n).length ? `<div class="chips">${chips(n)}</div>` : ""}
+    <ul class="cues">${cueRows(n)}</ul>
+    ${after ? `<p class="then"><b>แล้วต่อด้วย</b>${after.mc ? "พิธีกร: " : ""}${esc(after.ti)}${after.who && !after.mc ? " — " + esc(first(after.who)) : ""}${ac.length ? " · " + esc(ac.join(", ")) : ""}</p>` : ""}`;
+}
+
+function renderList() {
+  const i = idx(); let h = "", last = null;
+  items.forEach((s, k) => {
+    if (s.section !== last) { last = s.section; h += `<div class="sec">${esc(s.section || "—")}</div>`; }
+    const c = k < i ? " done" : k === i ? " cur" : k === i + 1 ? " nx" : "";
+    const ds = s.mc ? "" : [first(s.who), ...cueList(s).map(x => x[0] === "s" ? "จอ" + x[2] : x[2])].filter(Boolean).join(" · ");
+    h += `<button class="row${s.mc ? " mc" : ""}${c}" data-id="${esc(s.id)}"${k === i ? ' aria-current="step"' : ""}>
+      <span class="tm">${esc(s.t)}</span>
+      <span class="ti">${s.mc ? "พิธีกร: " : ""}${esc(s.ti)}${ds ? `<span class="ds">${esc(ds)}</span>` : ""}</span>
+      <span class="ed">${ic("pen")}</span></button>`;
+  });
+  $("list").innerHTML = h;
+  $("secs").innerHTML = [...new Set(items.map(x => x.section).filter(Boolean))].map(x => `<option value="${esc(x)}">`).join("");
+}
+
+function scrollList() {
+  const n = $("list").querySelector(".nx") || $("list").querySelector(".cur");
+  if (n && !editing && matchMedia("(min-width: 901px)").matches) n.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
+function render() {
+  renderNow(); renderNext(); renderList();
+  const i = idx(), n = items[i + 1];
+  $("prev").disabled = i === 0;
+  $("go").disabled = !n;
+  $("go").innerHTML = n ? `<span>ถัดไป ▶<small>เริ่ม: ${n.mc ? "พิธีกร " : ""}${esc(n.ti)}</small></span>` : "จบแล้ว";
+}
+
+// ---------- saved in this device's browser ----------
+const writeLive = () => cache();
+function writeSheet() { cache(); setSync("บันทึกในเครื่องนี้แล้ว"); }
+
+// ---------- run ----------
+function go(k) {
+  k = Math.max(0, Math.min(items.length - 1, k));
+  if (k === idx() || !items[k]) return;
+  live = { id: items[k].id, at: { ...live.at, [items[k].id]: Date.now() } };
+  render(); scrollList(); writeLive();
+  if (matchMedia("(max-width: 900px)").matches) scrollTo({ top: 0 });
+}
+$("go").addEventListener("click", () => go(idx() + 1));
+$("prev").addEventListener("click", () => go(idx() - 1));
+$("reset").addEventListener("click", () => { if (!items.length) return; live = { id: items[0].id, at: { [items[0].id]: Date.now() } }; render(); scrollList(); writeLive(); });
+$("list").addEventListener("click", e => {
+  const b = e.target.closest(".row"); if (!b) return;
+  const k = items.findIndex(x => x.id === b.dataset.id);
+  if (k < 0) return;
+  if (editing) openEd(k); else go(k);
+});
+addEventListener("keydown", e => {
+  if ($("dlg").open || e.target.closest("input,textarea,select,button")) return;
+  if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); go(idx() + 1); }
+  if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(idx() - 1); }
+});
+
+// ---------- edit ----------
+let ek = -1, armed = false;
+const F = $("frm");
+$("edit").addEventListener("click", () => {
+  editing = !editing;
+  $("edit").setAttribute("aria-pressed", editing);
+  $("side").classList.toggle("editing", editing);
+  $("addEnd").hidden = !editing;
+  $("restore").hidden = !editing;
+  if (editing && matchMedia("(max-width: 900px)").matches) $("side").scrollIntoView({ behavior: "smooth" });
+});
+function openEd(k) {
+  ek = k; armed = false; $("del").classList.remove("arm"); $("del").textContent = "ลบรายการ";
+  const s = items[k];
+  $("dlgT").textContent = `แก้ไขรายการที่ ${k + 1} จาก ${items.length}`;
+  F.querySelector(`input[name=mc][value="${s.mc ? 1 : 0}"]`).checked = true;
+  for (const n of ["ti", "t", "e", "who", "cues", "hi", "snd", "lit", "note", "section"]) F.elements[n].value = s[n] || "";
+  F.elements.order.value = s.order.join("\n");
+  $("up").disabled = k === 0; $("down").disabled = k === items.length - 1;
+  if (!$("dlg").open) $("dlg").showModal();
+}
+function readForm() {
+  const v = n => F.elements[n].value.trim();
+  return { ...items[ek], mc: F.querySelector("input[name=mc]:checked")?.value === "1" ? 1 : 0,
+    ti: v("ti"), t: normT(v("t")), e: normT(v("e")), who: v("who"), cues: v("cues"), hi: v("hi"),
+    snd: v("snd"), lit: v("lit"), note: v("note"), section: v("section"), order: v("order").split("\n").map(x => x.trim()).filter(Boolean) };
+}
+const commit = () => { items = items.map((x, k) => k === ek ? readForm() : x); };
+F.addEventListener("submit", e => {
+  e.preventDefault();
+  if (!F.reportValidity()) return;
+  commit(); $("dlg").close(); render(); writeSheet();
+});
+$("close").addEventListener("click", () => $("dlg").close());
+$("dlg").addEventListener("close", () => render());
+$("del").addEventListener("click", () => {
+  if (!armed) { armed = true; $("del").classList.add("arm"); $("del").textContent = "แตะอีกครั้งเพื่อลบ"; return; }
+  if (items.length < 2) return;
+  const gone = items[ek];
+  items = items.filter((_, k) => k !== ek);
+  if (live.id === gone.id) { live = { ...live, id: items[Math.min(ek, items.length - 1)].id }; writeLive(); }
+  $("dlg").close(); writeSheet();
+});
+function move(dir) {
+  const k = ek + dir; if (k < 0 || k >= items.length || !F.reportValidity()) return;
+  commit();
+  const a = items.slice(); [a[ek], a[k]] = [a[k], a[ek]];
+  items = a; render(); writeSheet(); openEd(k);
+}
+$("up").addEventListener("click", () => move(-1));
+$("down").addEventListener("click", () => move(1));
+function addAt(k, section) {
+  const it = { id: uid(), section: section || "", t: "", e: "", ti: "รายการใหม่", mc: 0, who: "", snd: "", lit: "", note: "", hi: "", cues: "", order: [] };
+  items = [...items.slice(0, k), it, ...items.slice(k)];
+  render(); writeSheet(); openEd(k); F.elements.ti.select();
+}
+$("addBelow").addEventListener("click", () => { if (!F.reportValidity()) return; commit(); addAt(ek + 1, items[ek].section); });
+$("addEnd").addEventListener("click", () => addAt(items.length, items[items.length - 1]?.section));
+
+let rArm = false;
+$("restore").addEventListener("click", () => {
+  if (!rArm) { rArm = true; $("restore").textContent = "แตะอีกครั้ง: ลบที่แก้ไขทั้งหมด"; $("restore").classList.add("add"); setTimeout(() => { rArm = false; $("restore").textContent = "คืนค่าใบคิวต้นฉบับ"; $("restore").classList.remove("add"); }, 4000); return; }
+  rArm = false; items = DEFAULT; live = { id: items[0].id, at: {} };
+  $("restore").textContent = "คืนค่าใบคิวต้นฉบับ"; $("restore").classList.remove("add");
+  render(); writeSheet();
+});
+
+// keep the iPad screen awake while this page is open (ignored where not allowed)
+let lock = null;
+const wake = async () => { try { if (!lock && navigator.wakeLock) { lock = await navigator.wakeLock.request("screen"); lock.addEventListener("release", () => { lock = null; }); } } catch {} };
+addEventListener("pointerdown", wake);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") wake(); });
+
+if (!items.some(x => x.id === live.id)) live = { id: items[0].id, at: {} };
+if (!live.at[live.id]) live.at[live.id] = Date.now();
+render(); scrollList();
+}
+</script>
+</body>
+</html>
