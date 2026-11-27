@@ -271,6 +271,10 @@ let items = DEFAULT, live = { id: DEFAULT[0].id, at: {} }, checks = {}, editing 
 try { const c = JSON.parse(localStorage.getItem(KEY)); if (c?.items?.length) items = clean(c.items); if (typeof c?.live?.id === "string") live = { id: c.live.id, at: c.live.at || {} }; if (c?.checks && typeof c.checks === "object") checks = c.checks; } catch {}
 const cache = () => { try { localStorage.setItem(KEY, JSON.stringify({ items, live, checks })); } catch {} };
 const idx = () => { const i = items.findIndex(x => x.id === live.id); return i < 0 ? 0 : i; };
+// an MC line with nothing for the operator to do is skipped: the MC runs it themselves
+const isStep = s => !s.mc || !!(s.cues || s.hi || s.lit || s.note || s.order.length || (s.snd && s.snd !== "เงียบ"));
+const nextStep = i => { for (let k = i + 1; k < items.length; k++) if (isStep(items[k])) return k; return -1; };
+const prevStep = i => { for (let k = i - 1; k >= 0; k--) if (isStep(items[k])) return k; return -1; };
 function setSync(t, bad) { const s = $("sync"); s.textContent = t ? "· " + t : ""; s.className = "sync" + (bad ? " bad" : ""); }
 
 // ---------- render ----------
@@ -278,7 +282,7 @@ function renderNow() {
   const s = items[idx()];
   if (!s) { $("now").innerHTML = ""; return; }
   $("now").innerHTML = `<div class="k1"><span class="dot"></span>ตอนนี้กำลัง${s.t ? ` · ${esc(s.t)}` : ""}</div>
-    <div class="nt">${s.mc ? "พิธีกร: " : ""}${esc(s.ti)}</div>
+    <div class="nt">${esc(s.ti)}</div>
     ${s.who && !s.mc ? `<div class="nw">${esc(first(s.who))}</div>` : ""}`;
 }
 
@@ -287,8 +291,7 @@ function todo(n) {
   const r = [];
   if (n.hi) r.push(["hi", `<b>แจ้ง:</b> ${esc(n.hi)}`]);
   for (const [k, , t] of cueList(n)) r.push([k, k === "m" ? `<b>เปิดเพลง ${esc(t)}</b>` : k === "v" ? `<b>เปิดวีดีโอ ${esc(t)}</b>` : `<b>จอ${esc(t)}</b>`]);
-  if (n.mc) r.push(["mic", `<b>ส่งคิวพิธีกร</b>${n.who ? ` (${esc(n.who)})` : ""}<small>${esc(n.ti)}</small>`]);
-  else if (n.who) r.push(["who", `<b>เตรียม / เชิญ:</b> ${esc(n.who).replace(/\n/g, "<br>")}`]);
+  if (!n.mc && n.who) r.push(["who", `<b>เตรียม / เชิญ:</b> ${esc(n.who).replace(/\n/g, "<br>")}`]);
   if (n.snd) r.push(["snd", `<b>เสียง:</b> ${esc(n.snd)}`]);
   if (n.lit) r.push(["lit", `<b>แสง:</b> ${esc(n.lit)}`]);
   if (n.note || n.order.length) r.push(["note", `${n.note ? `<b>หมายเหตุ:</b> ${esc(n.note)}` : "<b>ลำดับ</b>"}${n.order.length ? `<ol>${n.order.map(o => `<li>${esc(o)}</li>`).join("")}</ol>` : ""}`]);
@@ -296,26 +299,27 @@ function todo(n) {
 }
 
 function renderNext() {
-  const i = idx(), n = items[i + 1], after = items[i + 2];
+  const i = idx(), ni = nextStep(i), n = items[ni], after = ni < 0 ? null : items[nextStep(ni)];
   if (!n) { $("next").innerHTML = `<div class="k2"><span class="tag">ต้องทำต่อ</span></div><h2>จบกำหนดการ</h2>`; return; }
   const done = new Set(checks[n.id] || []), list = todo(n);
   const ac = after ? cueList(after).map(c => c[0] === "s" ? "จอ" + c[2] : c[2]) : [];
   $("next").innerHTML = `
     <div class="k2"><span class="tag">ต้องทำต่อ</span>${n.t ? `<span class="when">${esc(n.t)}${n.e ? "–" + esc(n.e) : ""}</span>` : ""}${n.section !== items[i].section ? `<span>${esc(n.section)}</span>` : ""}</div>
-    <h2><small>รายการต่อไป</small>${n.mc ? "พิธีกร: " : ""}${esc(n.ti)}</h2>
+    <h2><small>รายการต่อไป</small>${esc(n.ti)}</h2>
     ${list.length ? `<ul class="todo">${list.map(([k, t], j) => `<li class="${k}"><button aria-pressed="${done.has(j)}" data-j="${j}"><span class="bx">${ic("ok")}</span><span class="${k}">${ic(k)}</span><span class="t">${t}</span></button></li>`).join("")}</ul>` : `<p class="none">ไม่มีสิ่งที่ต้องเตรียม</p>`}
-    ${after ? `<p class="then"><b>แล้วต่อด้วย</b>${after.mc ? "พิธีกร: " : ""}${esc(after.ti)}${ac.length ? " · " + esc(ac.join(", ")) : ""}</p>` : ""}`;
+    ${after ? `<p class="then"><b>แล้วต่อด้วย</b>${esc(after.ti)}${ac.length ? " · " + esc(ac.join(", ")) : ""}</p>` : ""}`;
 }
 
 function renderList() {
-  const i = idx(); let h = "", last = null;
+  const i = idx(), ni = nextStep(i); let h = "", last = null;
   items.forEach((s, k) => {
+    if (!editing && !isStep(s) && k !== i) return;
     if (s.section !== last) { last = s.section; h += `<div class="sec">${esc(s.section || "—")}</div>`; }
-    const c = k < i ? " done" : k === i ? " cur" : k === i + 1 ? " nx" : "";
+    const c = k < i ? " done" : k === i ? " cur" : k === ni ? " nx" : "";
     const ds = s.mc ? "" : [first(s.who), ...cueList(s).map(x => x[0] === "s" ? "จอ" + x[2] : x[2])].filter(Boolean).join(" · ");
     h += `<button class="row${s.mc ? " mc" : ""}${c}" data-id="${esc(s.id)}"${k === i ? ' aria-current="step"' : ""}>
       <span class="tm">${esc(s.t)}</span>
-      <span class="ti">${s.mc ? "พิธีกร: " : ""}${esc(s.ti)}${ds ? `<span class="ds">${esc(ds)}</span>` : ""}</span>
+      <span class="ti">${esc(s.ti)}${ds ? `<span class="ds">${esc(ds)}</span>` : ""}</span>
       <span class="ed">${ic("pen")}</span></button>`;
   });
   $("list").innerHTML = h;
@@ -329,10 +333,10 @@ function scrollList() {
 
 function render() {
   renderNow(); renderNext(); renderList();
-  const i = idx(), n = items[i + 1];
-  $("prev").disabled = i === 0;
+  const i = idx(), n = items[nextStep(i)];
+  $("prev").disabled = prevStep(i) < 0;
   $("go").disabled = !n;
-  $("go").innerHTML = n ? `<span>ถัดไป ▶<small>เริ่ม: ${n.mc ? "พิธีกร " : ""}${esc(n.ti)}</small></span>` : "จบแล้ว";
+  $("go").innerHTML = n ? `<span>ถัดไป ▶<small>เริ่ม: ${esc(n.ti)}</small></span>` : "จบแล้ว";
 }
 
 // ---------- saved in this device's browser ----------
@@ -341,21 +345,22 @@ function writeSheet() { cache(); setSync("บันทึกในเครื�
 
 // ---------- run ----------
 function go(k) {
-  k = Math.max(0, Math.min(items.length - 1, k));
+  if (k < 0) return;
+  k = Math.min(items.length - 1, k);
   if (k === idx() || !items[k]) return;
   live = { id: items[k].id, at: { ...live.at, [items[k].id]: Date.now() } };
   render(); scrollList(); writeLive();
   if (matchMedia("(max-width: 900px)").matches) scrollTo({ top: 0 });
 }
-$("go").addEventListener("click", () => go(idx() + 1));
+$("go").addEventListener("click", () => go(nextStep(idx())));
 $("next").addEventListener("click", e => {
-  const b = e.target.closest(".todo button"), n = items[idx() + 1]; if (!b || !n) return;
+  const b = e.target.closest(".todo button"), n = items[nextStep(idx())]; if (!b || !n) return;
   const j = +b.dataset.j, set = new Set(checks[n.id] || []);
   set.has(j) ? set.delete(j) : set.add(j);
   checks = { ...checks, [n.id]: [...set] };
   b.setAttribute("aria-pressed", set.has(j)); cache();
 });
-$("prev").addEventListener("click", () => go(idx() - 1));
+$("prev").addEventListener("click", () => go(prevStep(idx())));
 $("reset").addEventListener("click", () => { if (!items.length) return; checks = {}; live = { id: items[0].id, at: { [items[0].id]: Date.now() } }; render(); scrollList(); writeLive(); });
 $("list").addEventListener("click", e => {
   const b = e.target.closest(".row"); if (!b) return;
@@ -365,8 +370,8 @@ $("list").addEventListener("click", e => {
 });
 addEventListener("keydown", e => {
   if ($("dlg").open || e.target.closest("input,textarea,select,button")) return;
-  if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); go(idx() + 1); }
-  if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(idx() - 1); }
+  if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); go(nextStep(idx())); }
+  if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(prevStep(idx())); }
 });
 
 // ---------- edit ----------
@@ -377,6 +382,7 @@ $("edit").addEventListener("click", () => {
   $("edit").setAttribute("aria-pressed", editing);
   $("side").classList.toggle("editing", editing);
   $("addEnd").hidden = !editing;
+  renderList();
   $("restore").hidden = !editing;
   if (editing && matchMedia("(max-width: 900px)").matches) $("side").scrollIntoView({ behavior: "smooth" });
 });
