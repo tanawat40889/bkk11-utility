@@ -155,6 +155,15 @@ dialog form{display:flex;flex-direction:column;max-height:92dvh}
         <dt>สถานที่</dt><dd>ห้องพระใหญ่ สมาคมฯ ธนบุรี</dd>
       </dl>
     </details>
+    <details class="info" open>
+      <summary>ไมค์</summary>
+      <dl>
+        <dt>1–2</dt><dd>พิธีกร</dd>
+        <dt>3–4</dt><dd>กล่าวยินดี (3 เป็นหลัก)</dd>
+        <dt>5–6</dt><dd>ร้อง</dd>
+        <dt>เครื่อง</dt><dd>1 กีต้าร์ · 2 คาฮองหน้า · 3 คาฮองหลัง · 4 แซ็ก</dd>
+      </dl>
+    </details>
     <div id="list"></div>
     <div class="sidebtns">
       <button class="ghost add" id="addEnd" hidden>+ เพิ่มรายการท้ายสุด</button>
@@ -175,6 +184,7 @@ dialog form{display:flex;flex-direction:column;max-height:92dvh}
       <div class="f"><label for="f-e">เวลาจบ</label><input id="f-e" name="e" inputmode="decimal" placeholder="10.20"></div>
       <div class="f w"><label for="f-who">ผู้รับผิดชอบ</label><textarea id="f-who" name="who" rows="2"></textarea></div>
       <div class="f w"><label for="f-cues">ไฟล์ / คิว</label><input id="f-cues" name="cues" placeholder="M001, V001, จอขึ้น"><span class="h">คั่นด้วยจุลภาค · ขึ้นต้น M = เพลง, V = วีดีโอ, จอ = จอขึ้น/ลง</span></div>
+      <div class="f w"><label for="f-mic">ไมค์</label><input id="f-mic" name="mic" placeholder="3 (หลัก) · สำรอง 4"></div>
       <div class="f w"><label for="f-hi">แจ้ง / เตรียม (บรรทัดละเรื่อง)</label><textarea id="f-hi" name="hi" rows="2"></textarea></div>
       <div class="f"><label for="f-snd">เพลง / เสียง</label><textarea id="f-snd" name="snd" rows="2"></textarea></div>
       <div class="f"><label for="f-lit">แสง / จอ</label><textarea id="f-lit" name="lit" rows="2"></textarea></div>
@@ -201,7 +211,7 @@ const W = "ช่วงกล่าวอวยพร (ตัวแทน 4 ฝ�
 const DEF = [
  {section:"ช่วงก่อนเริ่มพิธี", t:"09.30", e:"09.55", ti:"ก่อนเริ่มพิธี", snd:"เพลงระหว่างรายการ (เสียงจากคอม)", lit:"ไฟเต็มห้อง",
   note:"เปิดไฟล์ทุกไฟล์ทดสอบให้เสร็จก่อน 09:30", hi:"แจ้ง โชคาฮัน ไม่ต้องยกสัม รอช่วงวีดีทัศน์บ่าวสาว", cues:"M001, V001"},
- {section:"ช่วงก่อนเริ่มพิธี", t:"09.55", e:"10.00", ti:"พิธีกรกล่าวต้อนรับ", mc:1, who:MC, snd:"ค่อยๆ หรี่เพลงระหว่างรายการจนเงียบ ก่อนพิธีกรเริ่มพูด", lit:"ไฟเต็มห้อง",
+ {section:"ช่วงก่อนเริ่มพิธี", t:"09.55", e:"10.00", ti:"พิธีกรกล่าวต้อนรับ", mc:1, who:MC, mic:"1-2 พิธีกร", snd:"ค่อยๆ หรี่เพลงระหว่างรายการจนเงียบ ก่อนพิธีกรเริ่มพูด", lit:"ไฟเต็มห้อง",
   note:"แนะนำสมาคมฯ + แนะนำบ่าวสาว / บ่าวสาวรอหน้าประตูห้องพระใหญ่", hi:"เช็คบ่าวสาวก่อนพิธีกรขึ้น (พร้อม รอหน้าประตูห้องพระใหญ่)", cues:"จอขึ้น"},
  {section:"ช่วงเชิญบ่าวสาว", t:"10.00", e:"10.05", ti:"บ่าวสาวเดินเข้า", who:"บ่าว - สาว", snd:"เพลงส่งตัวเจ้าสาว (คลอ) → fade ออกเมื่อบ่าวสาวถึงที่นั่ง", lit:"ประตูห้องพระใหญ่เปิด", cues:"M002"},
  {section:"ช่วงพิธีการ", t:"10.05", ti:"เปิดพิธีการ + เชิญผู้นำสวด", mc:1, who:MC, snd:"เงียบ"},
@@ -211,22 +221,22 @@ const DEF = [
  {section:"ช่วงพิธีการ", ti:"เชิญคุณไพฑูรย์ ประกอบพิธีแลกแหวน", mc:1, who:MC},
  {section:"ช่วงพิธีการ", t:"10.30", e:"10.35", ti:"แลกแหวน", who:"คุณไพฑูรย์ งามสิริกุล", snd:"เงียบ"},
  {section:W, ti:"เชิญตัวแทนฝ่ายยุวชนหญิง", mc:1, who:MC},
- {section:W, t:"10.35", e:"10.40", ti:"อวยพร ยุวชนหญิง", who:"1) คุณนภัสกนก คุณศักดิ์พิทักษ์ (ผู้รับผิดชอบวงโคเทคิไท)\n2) คุณกรกนก ศุภนิราพาธ (ผู้รับผิดชอบกลุ่มบัวขาว)", snd:"เงียบ"},
+ {section:W, t:"10.35", e:"10.40", ti:"อวยพร ยุวชนหญิง", who:"1) คุณนภัสกนก คุณศักดิ์พิทักษ์ (ผู้รับผิดชอบวงโคเทคิไท)\n2) คุณกรกนก ศุภนิราพาธ (ผู้รับผิดชอบกลุ่มบัวขาว)", snd:"เงียบ", mic:"3 คนที่ 1 · 4 คนที่ 2"},
  {section:W, ti:"เชิญตัวแทนฝ่ายยุวชนชาย", mc:1, who:MC},
- {section:W, t:"10.40", e:"10.45", ti:"อวยพร ยุวชนชาย", who:"คุณทวีศักดิ์ วัฒนสุทธิพงศ์ (หัวหน้ายุวชน)", snd:"เงียบ"},
+ {section:W, t:"10.40", e:"10.45", ti:"อวยพร ยุวชนชาย", who:"คุณทวีศักดิ์ วัฒนสุทธิพงศ์ (หัวหน้ายุวชน)", snd:"เงียบ", mic:"3 (หลัก) · สำรอง 4"},
  {section:W, ti:"เชิญตัวแทนฝ่ายผู้ใหญ่หญิง", mc:1, who:MC},
- {section:W, t:"10.45", e:"10.50", ti:"อวยพร ผู้ใหญ่หญิง", who:"คุณสุวรรณา อำมฤตโชค (ผู้ช่วยหัวหน้าภาค ฝ่ายผู้ใหญ่หญิง)", snd:"เงียบ"},
+ {section:W, t:"10.45", e:"10.50", ti:"อวยพร ผู้ใหญ่หญิง", who:"คุณสุวรรณา อำมฤตโชค (ผู้ช่วยหัวหน้าภาค ฝ่ายผู้ใหญ่หญิง)", snd:"เงียบ", mic:"3 (หลัก) · สำรอง 4"},
  {section:W, ti:"เชิญตัวแทนฝ่ายผู้ใหญ่ชาย", mc:1, who:MC},
- {section:W, t:"10.50", e:"10.55", ti:"อวยพร ผู้ใหญ่ชาย", who:"คุณเอกชาติ ล้อวชิระวัฎฏ์ (ผู้ช่วยหัวหน้ารวมภาค ฝ่ายผู้ใหญ่ชาย)", snd:"เงียบ"},
+ {section:W, t:"10.50", e:"10.55", ti:"อวยพร ผู้ใหญ่ชาย", who:"คุณเอกชาติ ล้อวชิระวัฎฏ์ (ผู้ช่วยหัวหน้ารวมภาค ฝ่ายผู้ใหญ่ชาย)", snd:"เงียบ", mic:"3 (หลัก) · สำรอง 4"},
  {section:W, ti:"เชิญตัวแทนฝ่ายเจ้าภาพ", mc:1, who:MC},
- {section:W, t:"10.55", e:"11.00", ti:"เจ้าภาพกล่าวขอบคุณ", who:"คุณสุชาติ ศิริวัชราวงศ์", snd:"เงียบ"},
+ {section:W, t:"10.55", e:"11.00", ti:"เจ้าภาพกล่าวขอบคุณ", who:"คุณสุชาติ ศิริวัชราวงศ์", snd:"เงียบ", mic:"3 (หลัก) · สำรอง 4"},
  {section:"ปิดพิธีการ", ti:"สรุปพิธี + เชิญผู้นำสวดไดโมขุ 3 คำ", mc:1, who:MC},
  {section:"ปิดพิธีการ", t:"11.00", e:"11.02", ti:"สวดไดโมขุ 3 คำ", who:"ผู้นำสวด : คุณไพฑูรย์ งามสิริกุล", snd:"เงียบ", note:"หลังไดโมขุ 3 คำ จึงปิดตู้โงะฮนซน", cues:"จอลง"},
  {section:PV, ti:"เชิญชมวีดีทัศน์บ่าวสาว", mc:1, who:MC},
  {section:PV, t:"11.02", e:"11.07", ti:"วีดีทัศน์บ่าวสาว", snd:"เสียงวีดีทัศน์จากคอม", lit:"ปิดไฟ + ขึ้นจอ",
   note:"ยาวประมาณ 4.50 นาที / ฉายหลังจบพิธีการเท่านั้น", hi:"ปิดตู้พระ (หลังไดโมขุ 3 คำ)\nย้ายโต๊ะไปด้านข้าง (ตอนพิธีกรขึ้น หลังไดโมขุ 3 คำ)\nเตรียมบ่าว", cues:"V002"},
  {id:"show", section:PV, t:"11.07", e:"11.17", ti:"การแสดง (Surprise บ่าวสาว)", lit:"ไฟห้องยังปิด + เปิดไฟ PAR",
-  note:"ประมาณ 10 นาที", hi:"ขนเครื่องดนตรีวงขึ้นไป (ระหว่างวีดีทัศน์)"},
+  note:"ประมาณ 10 นาที", mic:"ร้อง 5-6 · เครื่อง: 1 กีต้าร์, 2 คาฮองหน้า, 3 คาฮองหลัง, 4 แซ็ก", hi:"ขนเครื่องดนตรีวงขึ้นไป (ระหว่างวีดีทัศน์)"},
  {section:"ช่วงถ่ายภาพ", t:"11.22", e:"11.30", ti:"ถ่ายภาพ", hi:"เอาเครื่องดนตรีวงลง (จบการแสดง)", who:"แขก (ทีละกลุ่ม)", snd:"เพลงคลอเบาๆ ตลอดช่วง", lit:"ปิดไฟ PAR + เปิดไฟเต็มห้อง",
   note:"บ่าวสาวอยากถ่ายภาพกับผู้เข้าร่วมงานทุกคน / ห้ามถ่ายภาพโงะฮนซนช่วงพิธีการ",
   order:["ฝ่ายผู้ใหญ่หญิง","ฝ่ายผู้ใหญ่ชาย","ฝ่ายยุวชนหญิง","ฝ่ายยุวชนชาย","ฝ่ายยุวชนชายหญิง (รวม)","ญาติผู้ใหญ่"], cues:"M001"},
@@ -243,7 +253,7 @@ const str = v => typeof v === "string" ? v : "";
 // shared data is untrusted: keep only known fields, as plain strings
 const clean = a => (Array.isArray(a) ? a : []).filter(x => x && typeof x === "object").slice(0, 300).map((x, k) => ({
   id: /^[\w-]{1,40}$/.test(str(x.id)) ? x.id : "x" + k, section: str(x.section), t: str(x.t), e: str(x.e), ti: str(x.ti), mc: x.mc ? 1 : 0,
-  who: str(x.who), snd: str(x.snd), lit: str(x.lit), note: str(x.note), hi: str(x.hi), cues: str(x.cues),
+  who: str(x.who), snd: str(x.snd), lit: str(x.lit), note: str(x.note), hi: str(x.hi), cues: str(x.cues), mic: str(x.mic),
   order: Array.isArray(x.order) ? x.order.filter(o => typeof o === "string").slice(0, 40) : [],
 }));
 const DEFAULT = clean(DEF.map((s, k) => ({ id: "d" + k, ...s })));
@@ -271,8 +281,10 @@ const first = w => str(w).split("\n")[0];
 const KEY = "runsheet-kimju-nat-v2";
 let items = DEFAULT, live = { id: DEFAULT[0].id, at: {} }, checks = {}, editing = false;
 try { const c = JSON.parse(localStorage.getItem(KEY)); if (c?.items?.length) items = clean(c.items); if (typeof c?.live?.id === "string") live = { id: c.live.id, at: c.live.at || {} }; if (c?.checks && typeof c.checks === "object") checks = c.checks; } catch {}
-// v1 data on a device: add the performance after the video without losing local edits
-if (!items.some(x => x.id === "show")) {
+// a device's saved copy predates later changes: apply each once, keeping local edits
+let mig = 0;
+try { mig = +JSON.parse(localStorage.getItem(KEY))?.m || 0; } catch {}
+if (mig < 1 && !items.some(x => x.id === "show")) {
   const D = k => DEFAULT.find(x => x.id === k);
   const v = items.findIndex(x => x.ti === "วีดีทัศน์บ่าวสาว");
   if (v >= 0) {
@@ -283,15 +295,16 @@ if (!items.some(x => x.id === "show")) {
     if (ph && ph.lit === "ไฟเต็มห้อง") ph.lit = "ปิดไฟ PAR + เปิดไฟเต็มห้อง";
   }
 }
-// stage tasks added later: add them to a device's saved copy too
-for (const [ti, h] of [["วีดีทัศน์บ่าวสาว", "ย้ายโต๊ะไปด้านข้าง (ตอนพิธีกรขึ้น หลังไดโมขุ 3 คำ)"], ["การแสดง (Surprise บ่าวสาว)", "ขนเครื่องดนตรีวงขึ้นไป (ระหว่างวีดีทัศน์)"], ["ถ่ายภาพ", "เอาเครื่องดนตรีวงลง (จบการแสดง)"], ["วีดีทัศน์บ่าวสาว", "ปิดตู้พระ (หลังไดโมขุ 3 คำ)"], ["สวดมนต์", "เปิดตู้พระ (ก่อนสวดมนต์)"], ["พิธีกรกล่าวต้อนรับ", "เช็คบ่าวสาวก่อนพิธีกรขึ้น (พร้อม รอหน้าประตูห้องพระใหญ่)"]]) {
+if (mig < 1) for (const [ti, h] of [["วีดีทัศน์บ่าวสาว", "ย้ายโต๊ะไปด้านข้าง (ตอนพิธีกรขึ้น หลังไดโมขุ 3 คำ)"], ["การแสดง (Surprise บ่าวสาว)", "ขนเครื่องดนตรีวงขึ้นไป (ระหว่างวีดีทัศน์)"], ["ถ่ายภาพ", "เอาเครื่องดนตรีวงลง (จบการแสดง)"], ["วีดีทัศน์บ่าวสาว", "ปิดตู้พระ (หลังไดโมขุ 3 คำ)"], ["สวดมนต์", "เปิดตู้พระ (ก่อนสวดมนต์)"], ["พิธีกรกล่าวต้อนรับ", "เช็คบ่าวสาวก่อนพิธีกรขึ้น (พร้อม รอหน้าประตูห้องพระใหญ่)"]]) {
   const x = items.find(y => y.ti === ti);
   if (x && !x.hi.includes(h.split(" (")[0])) x.hi = x.hi ? h + "\n" + x.hi : h;
 }
-const cache = () => { try { localStorage.setItem(KEY, JSON.stringify({ items, live, checks })); } catch {} };
+if (mig < 2) for (const x of items) if (!x.mic) { const d = DEFAULT.find(y => y.ti === x.ti); if (d) x.mic = d.mic; }
+const cache = () => { try { localStorage.setItem(KEY, JSON.stringify({ items, live, checks, m: 2 })); } catch {} };
+if (mig < 2 && localStorage.getItem(KEY)) cache();
 const idx = () => { const i = items.findIndex(x => x.id === live.id); return i < 0 ? 0 : i; };
 // an MC line with nothing for the operator to do is skipped: the MC runs it themselves
-const isStep = s => !s.mc || !!(s.cues || s.hi || s.lit || s.note || s.order.length || (s.snd && s.snd !== "เงียบ"));
+const isStep = s => !s.mc || !!(s.cues || s.mic || s.hi || s.lit || s.note || s.order.length || (s.snd && s.snd !== "เงียบ"));
 const nextStep = i => { for (let k = i + 1; k < items.length; k++) if (isStep(items[k])) return k; return -1; };
 const prevStep = i => { for (let k = i - 1; k >= 0; k--) if (isStep(items[k])) return k; return -1; };
 function setSync(t, bad) { const s = $("sync"); s.textContent = t ? "· " + t : ""; s.className = "sync" + (bad ? " bad" : ""); }
@@ -311,6 +324,7 @@ function todo(n) {
   for (const h of n.hi.split("\n").map(x => x.trim()).filter(Boolean)) r.push(["hi", `<b>${esc(h)}</b>`]);
   for (const [k, , t] of cueList(n)) r.push([k, k === "m" ? `<b>เปิดเพลง ${esc(t)}</b>` : k === "v" ? `<b>เปิดวีดีโอ ${esc(t)}</b>` : `<b>จอ${esc(t)}</b>`]);
   if (!n.mc && n.who) r.push(["who", `<b>เตรียม / เชิญ:</b> ${esc(n.who).replace(/\n/g, "<br>")}`]);
+  if (n.mic) r.push(["mic", `<b>ไมค์:</b> ${esc(n.mic)}`]);
   if (n.snd) r.push(["snd", `<b>เสียง:</b> ${esc(n.snd)}`]);
   if (n.lit) r.push(["lit", `<b>แสง:</b> ${esc(n.lit)}`]);
   if (n.note || n.order.length) r.push(["note", `${n.note ? `<b>หมายเหตุ:</b> ${esc(n.note)}` : "<b>ลำดับ</b>"}${n.order.length ? `<ol>${n.order.map(o => `<li>${esc(o)}</li>`).join("")}</ol>` : ""}`]);
@@ -410,7 +424,7 @@ function openEd(k) {
   const s = items[k];
   $("dlgT").textContent = `แก้ไขรายการที่ ${k + 1} จาก ${items.length}`;
   F.querySelector(`input[name=mc][value="${s.mc ? 1 : 0}"]`).checked = true;
-  for (const n of ["ti", "t", "e", "who", "cues", "hi", "snd", "lit", "note", "section"]) F.elements[n].value = s[n] || "";
+  for (const n of ["ti", "t", "e", "who", "cues", "mic", "hi", "snd", "lit", "note", "section"]) F.elements[n].value = s[n] || "";
   F.elements.order.value = s.order.join("\n");
   $("up").disabled = k === 0; $("down").disabled = k === items.length - 1;
   if (!$("dlg").open) $("dlg").showModal();
@@ -418,7 +432,7 @@ function openEd(k) {
 function readForm() {
   const v = n => F.elements[n].value.trim();
   return { ...items[ek], mc: F.querySelector("input[name=mc]:checked")?.value === "1" ? 1 : 0,
-    ti: v("ti"), t: normT(v("t")), e: normT(v("e")), who: v("who"), cues: v("cues"), hi: v("hi"),
+    ti: v("ti"), t: normT(v("t")), e: normT(v("e")), who: v("who"), cues: v("cues"), mic: v("mic"), hi: v("hi"),
     snd: v("snd"), lit: v("lit"), note: v("note"), section: v("section"), order: v("order").split("\n").map(x => x.trim()).filter(Boolean) };
 }
 const commit = () => { items = items.map((x, k) => k === ek ? readForm() : x); };
