@@ -34,6 +34,7 @@ jobs:
           mkdir -p site
           mv Registration/out site/registration
           cp -R Runsheet site/runsheet
+          cp -R Runsheet site/Runsheet   # same page at the branch-build path, so the link works whichever build serves the site
           echo '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=registration/"><title>BKK11 Utility</title>' > site/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
