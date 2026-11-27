@@ -175,7 +175,7 @@ dialog form{display:flex;flex-direction:column;max-height:92dvh}
       <div class="f"><label for="f-e">เวลาจบ</label><input id="f-e" name="e" inputmode="decimal" placeholder="10.20"></div>
       <div class="f w"><label for="f-who">ผู้รับผิดชอบ</label><textarea id="f-who" name="who" rows="2"></textarea></div>
       <div class="f w"><label for="f-cues">ไฟล์ / คิว</label><input id="f-cues" name="cues" placeholder="M001, V001, จอขึ้น"><span class="h">คั่นด้วยจุลภาค · ขึ้นต้น M = เพลง, V = วีดีโอ, จอ = จอขึ้น/ลง</span></div>
-      <div class="f w"><label for="f-hi">แจ้ง / เตรียม (ไฮไลต์)</label><textarea id="f-hi" name="hi" rows="2"></textarea></div>
+      <div class="f w"><label for="f-hi">แจ้ง / เตรียม (บรรทัดละเรื่อง)</label><textarea id="f-hi" name="hi" rows="2"></textarea></div>
       <div class="f"><label for="f-snd">เพลง / เสียง</label><textarea id="f-snd" name="snd" rows="2"></textarea></div>
       <div class="f"><label for="f-lit">แสง / จอ</label><textarea id="f-lit" name="lit" rows="2"></textarea></div>
       <div class="f w"><label for="f-note">หมายเหตุ</label><textarea id="f-note" name="note" rows="2"></textarea></div>
@@ -224,10 +224,10 @@ const DEF = [
  {section:"ปิดพิธีการ", t:"11.00", e:"11.02", ti:"สวดไดโมขุ 3 คำ", who:"ผู้นำสวด : คุณไพฑูรย์ งามสิริกุล", snd:"เงียบ", note:"หลังไดโมขุ 3 คำ จึงปิดตู้โงะฮนซน", cues:"จอลง"},
  {section:PV, ti:"เชิญชมวีดีทัศน์บ่าวสาว", mc:1, who:MC},
  {section:PV, t:"11.02", e:"11.07", ti:"วีดีทัศน์บ่าวสาว", snd:"เสียงวีดีทัศน์จากคอม", lit:"ปิดไฟ + ขึ้นจอ",
-  note:"ยาวประมาณ 4.50 นาที / ฉายหลังจบพิธีการเท่านั้น", hi:"เตรียมบ่าว", cues:"V002"},
+  note:"ยาวประมาณ 4.50 นาที / ฉายหลังจบพิธีการเท่านั้น", hi:"ย้ายโต๊ะไปด้านข้าง (ตอนพิธีกรขึ้น หลังไดโมขุ 3 คำ)\nเตรียมบ่าว", cues:"V002"},
  {id:"show", section:PV, t:"11.07", e:"11.17", ti:"การแสดง (Surprise บ่าวสาว)", lit:"ไฟห้องยังปิด + เปิดไฟ PAR",
-  note:"ประมาณ 10 นาที"},
- {section:"ช่วงถ่ายภาพ", t:"11.22", e:"11.30", ti:"ถ่ายภาพ", who:"แขก (ทีละกลุ่ม)", snd:"เพลงคลอเบาๆ ตลอดช่วง", lit:"ปิดไฟ PAR + เปิดไฟเต็มห้อง",
+  note:"ประมาณ 10 นาที", hi:"ขนเครื่องดนตรีวงขึ้นไป (ระหว่างวีดีทัศน์)"},
+ {section:"ช่วงถ่ายภาพ", t:"11.22", e:"11.30", ti:"ถ่ายภาพ", hi:"เอาเครื่องดนตรีวงลง (จบการแสดง)", who:"แขก (ทีละกลุ่ม)", snd:"เพลงคลอเบาๆ ตลอดช่วง", lit:"ปิดไฟ PAR + เปิดไฟเต็มห้อง",
   note:"บ่าวสาวอยากถ่ายภาพกับผู้เข้าร่วมงานทุกคน / ห้ามถ่ายภาพโงะฮนซนช่วงพิธีการ",
   order:["ฝ่ายผู้ใหญ่หญิง","ฝ่ายผู้ใหญ่ชาย","ฝ่ายยุวชนหญิง","ฝ่ายยุวชนชาย","ฝ่ายยุวชนชายหญิง (รวม)","ญาติผู้ใหญ่"], cues:"M001"},
  {section:"จบงาน", ti:"ส่งแขก", snd:"เพลงระหว่างรายการ", lit:"ไฟเต็มห้อง"},
@@ -283,6 +283,11 @@ if (!items.some(x => x.id === "show")) {
     if (ph && ph.lit === "ไฟเต็มห้อง") ph.lit = "ปิดไฟ PAR + เปิดไฟเต็มห้อง";
   }
 }
+// stage tasks added later: add them to a device's saved copy too
+for (const [ti, h] of [["วีดีทัศน์บ่าวสาว", "ย้ายโต๊ะไปด้านข้าง (ตอนพิธีกรขึ้น หลังไดโมขุ 3 คำ)"], ["การแสดง (Surprise บ่าวสาว)", "ขนเครื่องดนตรีวงขึ้นไป (ระหว่างวีดีทัศน์)"], ["ถ่ายภาพ", "เอาเครื่องดนตรีวงลง (จบการแสดง)"]]) {
+  const x = items.find(y => y.ti === ti);
+  if (x && !x.hi.includes(h.split(" (")[0])) x.hi = x.hi ? h + "\n" + x.hi : h;
+}
 const cache = () => { try { localStorage.setItem(KEY, JSON.stringify({ items, live, checks })); } catch {} };
 const idx = () => { const i = items.findIndex(x => x.id === live.id); return i < 0 ? 0 : i; };
 // an MC line with nothing for the operator to do is skipped: the MC runs it themselves
@@ -303,7 +308,7 @@ function renderNow() {
 // what the operator has to do before the next item starts, one row per action
 function todo(n) {
   const r = [];
-  if (n.hi) r.push(["hi", `<b>แจ้ง:</b> ${esc(n.hi)}`]);
+  for (const h of n.hi.split("\n").map(x => x.trim()).filter(Boolean)) r.push(["hi", `<b>${esc(h)}</b>`]);
   for (const [k, , t] of cueList(n)) r.push([k, k === "m" ? `<b>เปิดเพลง ${esc(t)}</b>` : k === "v" ? `<b>เปิดวีดีโอ ${esc(t)}</b>` : `<b>จอ${esc(t)}</b>`]);
   if (!n.mc && n.who) r.push(["who", `<b>เตรียม / เชิญ:</b> ${esc(n.who).replace(/\n/g, "<br>")}`]);
   if (n.snd) r.push(["snd", `<b>เสียง:</b> ${esc(n.snd)}`]);
