@@ -32,31 +32,35 @@ svg.i{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stro
 .app{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);height:calc(100vh - 70px);height:calc(100dvh - 70px)}
 .main{padding:14px max(2.5vw,16px);display:flex;flex-direction:column;gap:12px;overflow:hidden}
 .side{border-left:1px solid var(--line);background:var(--paper);overflow-y:auto;padding:8px 0 40px}
-/* now: slim strip */
-.now{flex:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:12px 16px;border-radius:16px;background:var(--paper);border:1px solid var(--line)}
-.now .tag{font-size:14px;font-weight:600;color:var(--mute);border:1.5px solid var(--line);border-radius:999px;padding:1px 10px;white-space:nowrap}
-.now .nt{font-size:19px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.now .nt small{font-weight:400;color:var(--mute);font-size:15px;margin-left:8px}
-.now .tm{font-variant-numeric:tabular-nums;color:var(--mute);font-size:15px;white-space:nowrap}
-/* next: the focus */
-.next{flex:1 1 auto;min-height:0;overflow-y:auto;border-radius:22px;padding:18px 22px;border:2.5px solid var(--acc);background:var(--bg);box-shadow:0 12px 32px -20px rgb(179 18 46 / .5)}
-.lbl{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--mute);flex-wrap:wrap}
-.lbl .tag{background:var(--acc);color:var(--acc-ink);border-radius:999px;padding:3px 14px;font-weight:700;font-size:18px}
-.lbl .when{color:var(--ink);font-weight:600;font-size:20px;font-variant-numeric:tabular-nums}
-.next h2{font-size:clamp(32px,4vw,50px);line-height:1.1;margin:8px 0 4px;text-wrap:balance}
-.next h2 .mc{display:block;font-size:.5em;color:var(--acc);font-weight:600;margin-bottom:2px}
-.who{font-size:20px;margin:0 0 12px;white-space:pre-line}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
-.chip{display:inline-flex;align-items:center;gap:6px;border:2px solid currentColor;border-radius:10px;padding:3px 12px;font-weight:700;font-size:19px;font-variant-numeric:tabular-nums}
-.chip.m{color:var(--m)}.chip.v{color:var(--v)}.chip.s{color:var(--s)}.chip i{font-style:normal;font-weight:500;opacity:.8;font-size:15px}
-.cues{display:grid;gap:8px;margin:0;padding:0;list-style:none}
-.cue{display:grid;grid-template-columns:26px 96px minmax(0,1fr);gap:10px;align-items:start;padding:8px 12px;border-radius:14px;background:var(--paper)}
-.cue .k{color:var(--mute);font-size:15px;padding-top:2px}
-.cue .t{font-size:18px}
-.cue.hi .t{background:var(--mark);border-radius:6px;padding:0 6px;box-decoration-break:clone;-webkit-box-decoration-break:clone;font-weight:600}
-.cue ol{margin:4px 0 0;padding-left:22px}
-.then{margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:17px}
-.then b{color:var(--mute);font-weight:500;margin-right:6px}
+/* card 1: what is happening now (name only) */
+.now{flex:none;padding:14px 20px;border-radius:18px;background:var(--paper);border:1px solid var(--line)}
+.k1{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--mute);font-weight:600}
+.k1 .dot{width:10px;height:10px;border-radius:50%;background:var(--ok);flex:none}
+.now .nt{font-size:clamp(22px,2.4vw,28px);font-weight:700;line-height:1.25;margin-top:2px}
+.now .nw{font-size:16px;color:var(--mute);margin-top:2px;white-space:pre-line}
+/* card 2: what to do next (the focus) */
+.next{flex:1 1 auto;min-height:0;overflow-y:auto;border-radius:22px;padding:16px 20px 18px;border:2.5px solid var(--acc);background:var(--bg);box-shadow:0 12px 32px -20px rgb(179 18 46 / .5)}
+.k2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px;color:var(--mute)}
+.k2 .tag{background:var(--acc);color:var(--acc-ink);border-radius:999px;padding:3px 14px;font-weight:700;font-size:18px}
+.k2 .when{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;font-size:17px}
+.next h2{font-size:clamp(28px,3.4vw,42px);line-height:1.12;margin:8px 0 2px;text-wrap:balance}
+.next h2 small{display:block;font-size:16px;font-weight:600;color:var(--mute);margin-bottom:2px}
+.next .nw{font-size:17px;color:var(--mute);margin:0 0 12px;white-space:pre-line}
+.todo{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.todo button{width:100%;display:grid;grid-template-columns:30px 28px minmax(0,1fr);gap:12px;align-items:center;text-align:left;min-height:60px;padding:10px 14px;border-radius:16px;border:1.5px solid var(--line);background:var(--paper);cursor:pointer;font-size:clamp(18px,1.9vw,21px);line-height:1.35;touch-action:manipulation}
+.todo .bx{width:28px;height:28px;border-radius:8px;border:2px solid var(--mute);display:grid;place-items:center;color:transparent}
+.todo .bx svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.todo .t b{font-weight:700}
+.todo .t small{display:block;font-size:15px;color:var(--mute)}
+.todo ol{margin:4px 0 0;padding-left:22px;font-size:17px}
+.todo .m{color:var(--m)}.todo .v{color:var(--v)}.todo .s{color:var(--s)}.todo .hi,.todo .mic{color:var(--acc)}.todo .who,.todo .snd,.todo .lit,.todo .note{color:var(--mute)}
+.todo li.hi button{background:var(--mark);border-color:transparent}
+.todo button[aria-pressed=true]{opacity:.5}
+.todo button[aria-pressed=true] .t{text-decoration:line-through}
+.todo button[aria-pressed=true] .bx{background:var(--ok);border-color:var(--ok);color:#fff}
+.none{color:var(--mute);font-size:18px;margin:14px 0 0}
+.then{margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:16px;color:var(--mute)}
+.then b{font-weight:600;margin-right:6px}
 .ctl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.6fr);gap:12px;flex:none}
 .btn{min-height:76px;border-radius:20px;border:1.5px solid var(--line);background:var(--paper);font-size:21px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;touch-action:manipulation;padding:0 14px;text-align:center;line-height:1.25}
 .btn.go{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);font-size:24px}
@@ -115,10 +119,9 @@ dialog form{display:flex;flex-direction:column;max-height:92dvh}
   .ctl{position:sticky;bottom:0;padding:8px 0 12px;background:var(--bg)}
 }
 @media (max-width:600px){
-  .cue{grid-template-columns:24px minmax(0,1fr)}.cue .k,.cue .t{grid-column:2}
+  .todo button{grid-template-columns:28px 24px minmax(0,1fr);gap:10px}
   .db{grid-template-columns:minmax(0,1fr)}
   .btn{min-height:64px;font-size:18px}.btn.go{font-size:20px}
-  .now{grid-template-columns:minmax(0,1fr) auto}.now .tag{display:none}
 }
 @media (prefers-reduced-motion:reduce){.btn:active{transform:none}}
 </style>
@@ -134,8 +137,8 @@ dialog form{display:flex;flex-direction:column;max-height:92dvh}
 
 <div class="app">
   <main class="main">
-    <section class="now" id="now" aria-label="รายการที่กำลังดำเนินอยู่"></section>
-    <section class="next" id="next" aria-live="polite"></section>
+    <section class="now" id="now" aria-label="ตอนนี้กำลัง"></section>
+    <section class="next" id="next" aria-label="ต้องทำต่อ" aria-live="polite"></section>
     <div class="ctl">
       <button class="btn" id="prev" aria-label="ย้อนกลับหนึ่งรายการ"><svg class="i" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg>ย้อน</button>
       <button class="btn go" id="go"></button>
@@ -249,19 +252,24 @@ const ICON = {
   lit:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
   note:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h5"/>',
   pen:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  m:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+  v:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/>',
+  s:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  who:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  ok:'<path d="M20 6 9 17l-5-5"/>',
 };
 const ic = k => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
 const cueList = s => str(s.cues).split(/[,\n]/).map(x => x.trim()).filter(Boolean).map(x =>
   /^m\d/i.test(x) ? ["m", "เพลง", x.toUpperCase()] : /^v\d/i.test(x) ? ["v", "วีดีโอ", x.toUpperCase()] :
   /^(จอ|screen)/i.test(x) ? ["s", "จอ", x.replace(/^(จอ|screen)\s*/i, "") || "-"] : ["s", "คิว", x]);
-const chips = s => cueList(s).map(([k, l, t]) => `<span class="chip ${k}"><i>${l}</i>${esc(t)}</span>`).join("");
 const first = w => str(w).split("\n")[0];
 
 // ---------- state ----------
 const KEY = "runsheet-kimju-nat-v2";
-let items = DEFAULT, live = { id: DEFAULT[0].id, at: {} }, editing = false;
-try { const c = JSON.parse(localStorage.getItem(KEY)); if (c?.items?.length) items = clean(c.items); if (typeof c?.live?.id === "string") live = { id: c.live.id, at: c.live.at || {} }; } catch {}
-const cache = () => { try { localStorage.setItem(KEY, JSON.stringify({ items, live })); } catch {} };
+let items = DEFAULT, live = { id: DEFAULT[0].id, at: {} }, checks = {}, editing = false;
+try { const c = JSON.parse(localStorage.getItem(KEY)); if (c?.items?.length) items = clean(c.items); if (typeof c?.live?.id === "string") live = { id: c.live.id, at: c.live.at || {} }; if (c?.checks && typeof c.checks === "object") checks = c.checks; } catch {}
+const cache = () => { try { localStorage.setItem(KEY, JSON.stringify({ items, live, checks })); } catch {} };
 const idx = () => { const i = items.findIndex(x => x.id === live.id); return i < 0 ? 0 : i; };
 function setSync(t, bad) { const s = $("sync"); s.textContent = t ? "· " + t : ""; s.className = "sync" + (bad ? " bad" : ""); }
 
@@ -269,31 +277,34 @@ function setSync(t, bad) { const s = $("sync"); s.textContent = t ? "· " + t : 
 function renderNow() {
   const s = items[idx()];
   if (!s) { $("now").innerHTML = ""; return; }
-  $("now").innerHTML = `<span class="tag">ตอนนี้</span>
-    <span class="nt">${s.mc ? "พิธีกร: " : ""}${esc(s.ti)}${s.who && !s.mc ? `<small>${esc(first(s.who))}</small>` : ""}</span>
-    <span class="tm">${esc(s.t)}${s.e ? "–" + esc(s.e) : ""}</span>`;
+  $("now").innerHTML = `<div class="k1"><span class="dot"></span>ตอนนี้กำลัง${s.t ? ` · ${esc(s.t)}` : ""}</div>
+    <div class="nt">${s.mc ? "พิธีกร: " : ""}${esc(s.ti)}</div>
+    ${s.who && !s.mc ? `<div class="nw">${esc(first(s.who))}</div>` : ""}`;
 }
 
-function cueRows(s) {
+// what the operator has to do before the next item starts, one row per action
+function todo(n) {
   const r = [];
-  if (s.hi) r.push(["hi", "แจ้ง / เตรียม", esc(s.hi), 1]);
-  if (s.snd) r.push(["snd", "เพลง / เสียง", esc(s.snd)]);
-  if (s.lit) r.push(["lit", "แสง / จอ", esc(s.lit)]);
-  if (s.note || s.order.length) r.push(["note", "หมายเหตุ", esc(s.note) + (s.order.length ? `<ol>${s.order.map(o => `<li>${esc(o)}</li>`).join("")}</ol>` : "")]);
-  return r.map(([k, l, t, h]) => `<li class="cue${h ? " hi" : ""}">${ic(k)}<span class="k">${l}</span><span class="t">${t}</span></li>`).join("");
+  if (n.hi) r.push(["hi", `<b>แจ้ง:</b> ${esc(n.hi)}`]);
+  for (const [k, , t] of cueList(n)) r.push([k, k === "m" ? `<b>เปิดเพลง ${esc(t)}</b>` : k === "v" ? `<b>เปิดวีดีโอ ${esc(t)}</b>` : `<b>จอ${esc(t)}</b>`]);
+  if (n.mc) r.push(["mic", `<b>ส่งคิวพิธีกร</b>${n.who ? ` (${esc(n.who)})` : ""}<small>${esc(n.ti)}</small>`]);
+  else if (n.who) r.push(["who", `<b>เตรียม / เชิญ:</b> ${esc(n.who).replace(/\n/g, "<br>")}`]);
+  if (n.snd) r.push(["snd", `<b>เสียง:</b> ${esc(n.snd)}`]);
+  if (n.lit) r.push(["lit", `<b>แสง:</b> ${esc(n.lit)}`]);
+  if (n.note || n.order.length) r.push(["note", `${n.note ? `<b>หมายเหตุ:</b> ${esc(n.note)}` : "<b>ลำดับ</b>"}${n.order.length ? `<ol>${n.order.map(o => `<li>${esc(o)}</li>`).join("")}</ol>` : ""}`]);
+  return r;
 }
 
 function renderNext() {
   const i = idx(), n = items[i + 1], after = items[i + 2];
-  if (!n) { $("next").innerHTML = `<div class="lbl"><span class="tag">ต่อไป</span></div><h2>จบกำหนดการ</h2>`; return; }
+  if (!n) { $("next").innerHTML = `<div class="k2"><span class="tag">ต้องทำต่อ</span></div><h2>จบกำหนดการ</h2>`; return; }
+  const done = new Set(checks[n.id] || []), list = todo(n);
   const ac = after ? cueList(after).map(c => c[0] === "s" ? "จอ" + c[2] : c[2]) : [];
   $("next").innerHTML = `
-    <div class="lbl"><span class="tag">ต่อไป</span>${n.t ? `<span class="when">${esc(n.t)}${n.e ? "–" + esc(n.e) : ""}</span>` : ""}${n.section !== items[i].section ? `<span>· ${esc(n.section)}</span>` : ""}</div>
-    <h2>${n.mc ? `<span class="mc">พิธีกร ${esc(n.who)}</span>` : ""}${esc(n.ti)}</h2>
-    ${n.who && !n.mc ? `<p class="who">${esc(n.who)}</p>` : ""}
-    ${cueList(n).length ? `<div class="chips">${chips(n)}</div>` : ""}
-    <ul class="cues">${cueRows(n)}</ul>
-    ${after ? `<p class="then"><b>แล้วต่อด้วย</b>${after.mc ? "พิธีกร: " : ""}${esc(after.ti)}${after.who && !after.mc ? " — " + esc(first(after.who)) : ""}${ac.length ? " · " + esc(ac.join(", ")) : ""}</p>` : ""}`;
+    <div class="k2"><span class="tag">ต้องทำต่อ</span>${n.t ? `<span class="when">${esc(n.t)}${n.e ? "–" + esc(n.e) : ""}</span>` : ""}${n.section !== items[i].section ? `<span>${esc(n.section)}</span>` : ""}</div>
+    <h2><small>รายการต่อไป</small>${n.mc ? "พิธีกร: " : ""}${esc(n.ti)}</h2>
+    ${list.length ? `<ul class="todo">${list.map(([k, t], j) => `<li class="${k}"><button aria-pressed="${done.has(j)}" data-j="${j}"><span class="bx">${ic("ok")}</span><span class="${k}">${ic(k)}</span><span class="t">${t}</span></button></li>`).join("")}</ul>` : `<p class="none">ไม่มีสิ่งที่ต้องเตรียม</p>`}
+    ${after ? `<p class="then"><b>แล้วต่อด้วย</b>${after.mc ? "พิธีกร: " : ""}${esc(after.ti)}${ac.length ? " · " + esc(ac.join(", ")) : ""}</p>` : ""}`;
 }
 
 function renderList() {
@@ -337,8 +348,15 @@ function go(k) {
   if (matchMedia("(max-width: 900px)").matches) scrollTo({ top: 0 });
 }
 $("go").addEventListener("click", () => go(idx() + 1));
+$("next").addEventListener("click", e => {
+  const b = e.target.closest(".todo button"), n = items[idx() + 1]; if (!b || !n) return;
+  const j = +b.dataset.j, set = new Set(checks[n.id] || []);
+  set.has(j) ? set.delete(j) : set.add(j);
+  checks = { ...checks, [n.id]: [...set] };
+  b.setAttribute("aria-pressed", set.has(j)); cache();
+});
 $("prev").addEventListener("click", () => go(idx() - 1));
-$("reset").addEventListener("click", () => { if (!items.length) return; live = { id: items[0].id, at: { [items[0].id]: Date.now() } }; render(); scrollList(); writeLive(); });
+$("reset").addEventListener("click", () => { if (!items.length) return; checks = {}; live = { id: items[0].id, at: { [items[0].id]: Date.now() } }; render(); scrollList(); writeLive(); });
 $("list").addEventListener("click", e => {
   const b = e.target.closest(".row"); if (!b) return;
   const k = items.findIndex(x => x.id === b.dataset.id);
@@ -413,7 +431,7 @@ $("addEnd").addEventListener("click", () => addAt(items.length, items[items.leng
 let rArm = false;
 $("restore").addEventListener("click", () => {
   if (!rArm) { rArm = true; $("restore").textContent = "แตะอีกครั้ง: ลบที่แก้ไขทั้งหมด"; $("restore").classList.add("add"); setTimeout(() => { rArm = false; $("restore").textContent = "คืนค่าใบคิวต้นฉบับ"; $("restore").classList.remove("add"); }, 4000); return; }
-  rArm = false; items = DEFAULT; live = { id: items[0].id, at: {} };
+  rArm = false; items = DEFAULT; checks = {}; live = { id: items[0].id, at: {} };
   $("restore").textContent = "คืนค่าใบคิวต้นฉบับ"; $("restore").classList.remove("add");
   render(); writeSheet();
 });
